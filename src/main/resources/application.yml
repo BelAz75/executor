@@ -1,10 +1,37 @@
 spring:
-  jpa.properties.hibernate.jdbc.lob.non_contextual_creation: true
+  jpa:
+    # default JPA PostgreSQL dialect
+    database-platform: org.hibernate.dialect.PostgreSQL95Dialect
+    hibernate:
+      # validate - check schema (database) to be compatible with ORM mappings
+      ddl-auto: create
+    properties:
+      hibernate:
+        current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
+        # enable loading lazy initialized collections when no hibernate transaction is open
+        enable_lazy_load_no_trans: true
+        id:
+          new_generator_mappings: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+          batch_size: 100
+        order_inserts: true
+        order_updates: true
+        format_sql: false
+        cache:
+          use_second_level_cache: false
+    # show generated and executed sql in logs
+    show-sql: false
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/virtual_lab?charSet=UTF8}
     driver-class-name: org.postgresql.Driver
-
-
-#spring.jpa.database-platform=org.hibernate.dialect.Postgre9SQLDialect
-#spring.jpa.show-sql=false
-#spring.jpa.hibernate.ddl-auto=create
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      connection-test-query: SELECT 1;
+      connection-timeout: 30000
+      idle-timeout: 30000
+      max-lifetime: 2000000
+      maximum-pool-size: 50
+      minimum-idle: 20
+      pool-name: SpringBootHikariCP
