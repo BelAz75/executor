@@ -1,1 +1,5 @@
-GET http://localhost:8080/execute
+###
+GET http://localhost:8080/execute/java
+
+###
+GET http://localhost:8080/execute/python

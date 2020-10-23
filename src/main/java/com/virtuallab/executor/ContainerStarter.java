@@ -2,10 +2,10 @@ package com.virtuallab.executor;
 
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Service
 public class ContainerStarter {
@@ -14,9 +14,14 @@ public class ContainerStarter {
         this.imageGenerator = imageGenerator;
     }
     
-    public void main() throws IOException, InterruptedException {
+    public void executeJavaCode() throws IOException, InterruptedException {
+        String executionFolderName = UUIDUtil.generateShortUUID();
+        Path executionFolder = Paths.get("./images/" + Language.JAVA.name().toLowerCase() + "/" + executionFolderName);
+        Files.createDirectories(executionFolder);
+
+        System.out.println("---------JAVA---------");
         long start = System.currentTimeMillis();
-        String dockerImageName = imageGenerator.generateDockerImageForLanguage("java", "public class Main {\n" +
+        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.JAVA, executionFolderName, "public class Main {\n" +
                 "  public static void main(String[] args) {\n" +
                 "    System.out.println(\"Test Noner Run\");\n" +
                 "  }\n" +
@@ -24,7 +29,31 @@ public class ContainerStarter {
         System.out.println("============Start process===========");
         executeProcess("docker run " + dockerImageName);
         long time = System.currentTimeMillis() - start;
-        System.out.println(time + "ms");
+        executeProcess("docker rmi -f " + dockerImageName);
+        deleteDirectory(executionFolder);
+        System.out.println("---------JAVA END----"+time + "ms-----");
+    }
+
+    public void executePythonCode() throws IOException, InterruptedException {
+        String executionFolderName = UUIDUtil.generateShortUUID();
+        Path executionFolder = Paths.get("./images/" + Language.PYTHON.name().toLowerCase() + "/" + executionFolderName);
+        Files.createDirectories(executionFolder);
+
+        System.out.println("----------PYTHON----------");
+        long start = System.currentTimeMillis();
+        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.PYTHON, executionFolderName, "print(\"This line will be printed.\")");
+        System.out.println("============Start process===========");
+        executeProcess("docker run " + dockerImageName);
+        long time = System.currentTimeMillis() - start;
+        executeProcess("docker rmi -f " + dockerImageName);
+
+        deleteDirectory(executionFolder);
+        System.out.println("----------PYTHON END---" + time + "ms------");
+    }
+
+    private void deleteDirectory(Path path) throws IOException {
+        Files.walk(path).map(Path::toFile).forEach(File::delete);
+        Files.delete(path);
     }
 
     public static void executeProcess(String command) throws IOException, InterruptedException {

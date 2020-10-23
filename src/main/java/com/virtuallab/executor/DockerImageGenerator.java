@@ -12,16 +12,15 @@ import static com.virtuallab.executor.ContainerStarter.executeProcess;
 @Service
 public class DockerImageGenerator {
 
-    public String generateDockerImageForLanguage(String languageName, String fileContent) throws IOException, InterruptedException {
-        Language language = Language.toEnum(languageName);
-        Path file = createFile(language, fileContent);
+    public String generateDockerImageForLanguage(Language language, String execFolder, String fileContent) throws IOException, InterruptedException {
         String dockerImageName;
         switch (language) {
             case JAVA:
-                dockerImageName = generateJavaDockerImage(file, language);
+                createJavaExecScript(language, execFolder);
+                dockerImageName = generateJavaDockerImage(createJavaFile(language, execFolder, fileContent), execFolder, language);
                 break;
             case PYTHON:
-                dockerImageName = generatePythonDockerImage();
+                dockerImageName = generatePythonDockerImage(createFile(language, execFolder, fileContent), execFolder, language);
                 break;
             case CPP:
                 dockerImageName = generateCppDockerImage();
@@ -32,38 +31,60 @@ public class DockerImageGenerator {
             default:
                 throw new RuntimeException("Programming language " + language + " not supported");
         }
-//        Files.delete(file);
         return dockerImageName;
     }
 
 
-    private Path createFile(Language language, String fileContent) throws IOException {
+    private Path createJavaFile(Language language, String execFolder, String fileContent) throws IOException {
         //TODO it's not working for the Java
-        String fileName = /*UUIDUtil.generateShortUUID()*/ "Main"+ language.getExtension();
-        Path filePath = Paths.get("./images/" + language.name().toLowerCase() + "/" + fileName);
-        System.out.println(filePath.toAbsolutePath().toString());
-        System.out.println(filePath.getFileName());
+        String fileName = "Main" + language.getExtension();
+        Path filePath = Paths.get("./images/" + language.name().toLowerCase() + "/" + execFolder + "/" + fileName);
         Files.write(filePath, fileContent.getBytes());
         return filePath;
     }
 
-    private String generateJavaDockerImage(Path filePath, Language language) throws IOException, InterruptedException {
-        Path dockerfilePath = Paths.get("./images/" + language.name().toLowerCase() + "/Dockerfile");
-        System.out.println(dockerfilePath.toAbsolutePath().toString());
+    private Path createJavaExecScript(Language language, String execFolder) throws IOException {
+        String fileName = "process_execution.sh";
+        String scriptContent = "#!/bin/bash\n" +
+                               "cd /usr/local/bin/\n" +
+                               "javac Main.java\n" +
+                               "java Main\n" +
+                               "exit 1";
+        Path filePath = Paths.get("./images/" + language.name().toLowerCase() + "/" + execFolder + "/" + fileName);
+        Files.write(filePath, scriptContent.getBytes());
+        return filePath;
+    }
+
+    private Path createFile(Language language, String execFolder, String fileContent) throws IOException {
+        String fileName = UUIDUtil.generateShortUUID() + language.getExtension();
+        Path filePath = Paths.get("./images/" + language.name().toLowerCase() + "/" + execFolder + "/" + fileName);
+        Files.write(filePath, fileContent.getBytes());
+        return filePath;
+    }
+
+    private String generateJavaDockerImage(Path filePath, String execFolder, Language language) throws IOException, InterruptedException {
+        Path dockerfilePath = Paths.get("./images/" + language.name().toLowerCase() + "/" + execFolder + "/Dockerfile");
         String dockerfile = "FROM openjdk:11.0.1-slim\n" +
-                "COPY java_process_execution.sh /usr/local/bin/java_process_execution.sh\n" +
-                "RUN chmod +x /usr/local/bin/java_process_execution.sh\n" +
+                "COPY process_execution.sh /usr/local/bin/process_execution.sh\n" +
+                "RUN chmod +x /usr/local/bin/process_execution.sh\n" +
                 "COPY " + filePath.getFileName() + " /usr/local/bin/" + filePath.getFileName() + "\n" +
-                "CMD /usr/local/bin/java_process_execution.sh";
+                "CMD /usr/local/bin/process_execution.sh";
         Files.write(dockerfilePath, dockerfile.getBytes());
         String dockerImageName = language.name().toLowerCase() + "_" + UUIDUtil.generateShortUUID();
         executeProcess("docker build -t " + dockerImageName + " " + dockerfilePath.getParent().toAbsolutePath().toString());
-//        Files.delete(dockerfilePath);
         return dockerImageName;
     }
 
-    private String generatePythonDockerImage() {
-        return "";
+    private String generatePythonDockerImage(Path filePath, String execFolder, Language language) throws IOException, InterruptedException {
+        Path dockerfilePath = Paths.get("./images/" + language.name().toLowerCase() + "/" + execFolder +  "/Dockerfile");
+        String dockerfile = "FROM python:3\n" +
+                "WORKDIR /usr/src/app\n" +
+                "COPY " + filePath.getFileName() + " ./" + filePath.getFileName() + "\n" +
+                "CMD [\"python\", \"./" + filePath.getFileName() + "\"]";
+        Files.write(dockerfilePath, dockerfile.getBytes());
+        String dockerImageName = language.name().toLowerCase() + "_" + UUIDUtil.generateShortUUID();
+        executeProcess("docker build -t " + dockerImageName + " " + dockerfilePath.getParent().toAbsolutePath().toString());
+        return dockerImageName;
     }
 
     private String generateCppDockerImage() {
