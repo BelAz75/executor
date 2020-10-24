@@ -22,8 +22,8 @@ public class DockerImageGenerator {
             case PYTHON:
                 dockerImageName = generatePythonDockerImage(createFile(language, execFolder, fileContent), execFolder, language);
                 break;
-            case CPP:
-                dockerImageName = generateCppDockerImage();
+            case C:
+                dockerImageName = generateCDockerImage(createFile(language, execFolder, fileContent), execFolder, language);
                 break;
             case PASCAL:
                 dockerImageName = generatePascalDockerImage();
@@ -68,7 +68,7 @@ public class DockerImageGenerator {
                 "COPY process_execution.sh /usr/local/bin/process_execution.sh\n" +
                 "RUN chmod +x /usr/local/bin/process_execution.sh\n" +
                 "COPY " + filePath.getFileName() + " /usr/local/bin/" + filePath.getFileName() + "\n" +
-                "CMD /usr/local/bin/process_execution.sh";
+                "CMD [\"/usr/local/bin/process_execution.sh\"]";
         Files.write(dockerfilePath, dockerfile.getBytes());
         String dockerImageName = language.name().toLowerCase() + "_" + UUIDUtil.generateShortUUID();
         executeProcess("docker build -t " + dockerImageName + " " + dockerfilePath.getParent().toAbsolutePath().toString());
@@ -87,8 +87,17 @@ public class DockerImageGenerator {
         return dockerImageName;
     }
 
-    private String generateCppDockerImage() {
-        return "";
+    private String generateCDockerImage(Path filePath, String execFolder, Language language) throws IOException, InterruptedException {
+        Path dockerfilePath = Paths.get("./images/" + language.name().toLowerCase() + "/" + execFolder +  "/Dockerfile");
+        String dockerfile = "FROM gcc:4.9\n" +
+                "COPY " + filePath.getFileName() + " /usr/src/myapp/" + filePath.getFileName() + "\n" +
+                "WORKDIR /usr/src/myapp\n" +
+                "RUN gcc -o myapp ./" + filePath.getFileName() + "\n" +
+                "CMD [\"./myapp\"]";
+        Files.write(dockerfilePath, dockerfile.getBytes());
+        String dockerImageName = language.name().toLowerCase() + "_" + UUIDUtil.generateShortUUID();
+        executeProcess("docker build -t " + dockerImageName + " " + dockerfilePath.getParent().toAbsolutePath().toString());
+        return dockerImageName;
     }
 
     private String generatePascalDockerImage() {

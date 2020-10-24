@@ -21,7 +21,8 @@ public class ContainerStarter {
 
         System.out.println("---------JAVA---------");
         long start = System.currentTimeMillis();
-        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.JAVA, executionFolderName, "public class Main {\n" +
+        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.JAVA, executionFolderName,
+                "public class Main {\n" +
                 "  public static void main(String[] args) {\n" +
                 "    System.out.println(\"Test Noner Run\");\n" +
                 "  }\n" +
@@ -41,7 +42,8 @@ public class ContainerStarter {
 
         System.out.println("----------PYTHON----------");
         long start = System.currentTimeMillis();
-        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.PYTHON, executionFolderName, "print(\"This line will be printed.\")");
+        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.PYTHON, executionFolderName,
+                "print(\"This line will be printed.\")");
         System.out.println("============Start process===========");
         executeProcess("docker run " + dockerImageName);
         long time = System.currentTimeMillis() - start;
@@ -49,6 +51,29 @@ public class ContainerStarter {
 
         deleteDirectory(executionFolder);
         System.out.println("----------PYTHON END---" + time + "ms------");
+    }
+
+    public void executeCCode() throws IOException, InterruptedException {
+        String executionFolderName = UUIDUtil.generateShortUUID();
+        Path executionFolder = Paths.get("./images/" + Language.C.name().toLowerCase() + "/" + executionFolderName);
+        Files.createDirectories(executionFolder);
+
+        System.out.println("----------C----------");
+        long start = System.currentTimeMillis();
+        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.C, executionFolderName,
+                "#include <stdio.h>\n" +
+                "int main()\n" +
+                "{\n" +
+                "  puts (\"Hello, World!\");\n" +
+                "  return 0;\n" +
+                "}");
+        System.out.println("============Start process===========");
+        executeProcess("docker run " + dockerImageName);
+        long time = System.currentTimeMillis() - start;
+        executeProcess("docker rmi -f " + dockerImageName);
+
+        deleteDirectory(executionFolder);
+        System.out.println("----------C END---" + time + "ms------");
     }
 
     private void deleteDirectory(Path path) throws IOException {

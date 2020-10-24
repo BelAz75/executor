@@ -3,7 +3,7 @@ package com.virtuallab.executor;
 public enum Language {
     JAVA(".java"),
     PYTHON(".py"),
-    CPP(".cpp"),
+    C(".c"),
     PASCAL(".pas");
 
     private final String extension;
@@ -22,8 +22,8 @@ public enum Language {
                 return JAVA;
             case "python":
                 return PYTHON;
-            case "c++":
-                return CPP;
+            case "c":
+                return C;
             case "pascal":
                 return PASCAL;
             default:

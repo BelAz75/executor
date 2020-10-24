@@ -23,6 +23,9 @@ public class ContainerStarterController {
             case PYTHON:
                 starter.executePythonCode();
                 break;
+            case C:
+                starter.executeCCode();
+                break;
             default:
                 throw new RuntimeException("Programming language " + language + " not supported");
         }
