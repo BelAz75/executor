@@ -1,4 +1,4 @@
-package com.virtuallab.executor;
+package com.virtuallab.common;
 
 public enum Language {
     JAVA(".java"),

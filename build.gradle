@@ -17,10 +17,16 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
+	// JSON
+	implementation group: 'org.apache.commons', name: 'commons-lang3', version: apacheStringUtilsVersion
+
 	// DB
 //	implementation 'org.liquibase:liquibase-core'
 	implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: hibernateTypesVersion
 	runtimeOnly 'org.postgresql:postgresql'
+
+	// Swagger
+	implementation group: 'io.springfox', name: 'springfox-boot-starter', version: swagger
 
 	// Testing
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {

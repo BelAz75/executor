@@ -1,10 +1,15 @@
 package com.virtuallab.task.dataprovider;
 
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
+@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @Table(name = "task_parameter")
 public class TaskParameterEntity {
 
@@ -23,8 +28,9 @@ public class TaskParameterEntity {
     @Column(name = "method_name")
     private String methodName;
 
+    @Type(type = "jsonb")
     @Column(name = "input_parameters")
-    private String inputParameters;
+    private List<InputParameterEntity> inputParameters;
 
     @Column(name = "output_parameters")
     private String outputParameters;
@@ -61,11 +67,11 @@ public class TaskParameterEntity {
         this.methodName = methodName;
     }
 
-    public String getInputParameters() {
+    public List<InputParameterEntity> getInputParameters() {
         return inputParameters;
     }
 
-    public void setInputParameters(String inputParameters) {
+    public void setInputParameters(List<InputParameterEntity> inputParameters) {
         this.inputParameters = inputParameters;
     }
 
@@ -76,4 +82,5 @@ public class TaskParameterEntity {
     public void setOutputParameters(String outputParameters) {
         this.outputParameters = outputParameters;
     }
+
 }
