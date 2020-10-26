@@ -29,8 +29,11 @@ public class TaskRestController {
     }
 
     @PutMapping("/{taskId}")
-    public TaskResponse updateTask() {
-        return taskRestService.updateTask();
+    public TaskResponse updateTask(
+        @PathVariable("taskId") String taskId,
+        @RequestBody UpdateTaskRequest updateTaskRequest
+    ) {
+        return taskRestService.updateTask(taskId, updateTaskRequest);
     }
 
 }

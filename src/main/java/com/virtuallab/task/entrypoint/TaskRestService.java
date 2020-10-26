@@ -45,8 +45,9 @@ public class TaskRestService {
         return ResponseConverter.toResponse(task);
     }
 
-    public TaskResponse updateTask() {
-        return null;
+    public TaskResponse updateTask(String taskId, UpdateTaskRequest updateTaskRequest) {
+        TaskEntity taskEntity = updateTask.execute(taskId, updateTaskRequest);
+        return ResponseConverter.toResponse(taskEntity);
     }
 
 }
