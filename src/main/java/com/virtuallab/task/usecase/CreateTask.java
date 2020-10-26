@@ -12,8 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.virtuallab.util.UUIDUtil.generateUUID;
-
 @Component
 public class CreateTask {
 
@@ -34,7 +32,6 @@ public class CreateTask {
         // check constraints
 
         TaskEntity taskEntity = new TaskEntity();
-        taskEntity.setId(generateUUID());
         taskEntity.setTitle(request.getTitle());
         taskEntity.setDescription(request.getDescription());
         taskEntity.setCreatedAt(LocalDateTime.now());
@@ -44,7 +41,6 @@ public class CreateTask {
 
         List<TaskParameterEntity> taskParameterEntities = Arrays.stream(Language.values()).map(language -> {
             TaskParameterEntity taskParameterEntity = new TaskParameterEntity();
-            taskParameterEntity.setId(generateUUID());
             taskParameterEntity.setTaskId(taskEntity.getId());
             taskParameterEntity.setLanguage(language.name());
             taskParameterEntity.setMethodName(request.getMethodName());
@@ -59,7 +55,6 @@ public class CreateTask {
 
         List<TaskTestCaseEntity> taskTestCaseEntities = request.getTestCases().stream().map(testCase -> {
             TaskTestCaseEntity taskTestCaseEntity = new TaskTestCaseEntity();
-            taskTestCaseEntity.setId(generateUUID());
             taskTestCaseEntity.setTaskId(taskEntity.getId());
             taskTestCaseEntity.setInput(testCase.getInputData());
             taskTestCaseEntity.setOutput(testCase.getExpectedData());
