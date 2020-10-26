@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.virtuallab.util.UUIDUtil.generateUUID;
-
 @Component
 public class UpdateTask {
 
@@ -49,7 +47,6 @@ public class UpdateTask {
         }
         List<TaskParameterEntity> taskParameterEntities = Arrays.stream(Language.values()).map(language -> {
             TaskParameterEntity taskParameterEntity = new TaskParameterEntity();
-            taskParameterEntity.setId(generateUUID());
             taskParameterEntity.setTaskId(taskEntity.getId());
             taskParameterEntity.setLanguage(language.name());
             taskParameterEntity.setMethodName(request.getMethodName());
@@ -69,7 +66,6 @@ public class UpdateTask {
         }
         List<TaskTestCaseEntity> taskTestCaseEntities = request.getTestCases().stream().map(testCase -> {
             TaskTestCaseEntity taskTestCaseEntity = new TaskTestCaseEntity();
-            taskTestCaseEntity.setId(generateUUID());
             taskTestCaseEntity.setTaskId(taskEntity.getId());
             taskTestCaseEntity.setInput(testCase.getInputData());
             taskTestCaseEntity.setOutput(testCase.getExpectedData());
