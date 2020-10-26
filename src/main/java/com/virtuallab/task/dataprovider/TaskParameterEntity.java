@@ -29,7 +29,7 @@ public class TaskParameterEntity {
     private String methodName;
 
     @Type(type = "jsonb")
-    @Column(name = "input_parameters")
+    @Column(name = "input_parameters", columnDefinition = "jsonb")
     private List<InputParameterEntity> inputParameters;
 
     @Column(name = "output_parameters")
