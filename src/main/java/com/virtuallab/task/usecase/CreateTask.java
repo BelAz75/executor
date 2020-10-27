@@ -39,6 +39,7 @@ public class CreateTask {
         taskEntity.setCreatedBy("user-1");
         taskRepository.save(taskEntity);
 
+        // TODO save raw parameters, because they are independent of the language and mapping will be done inside application
         List<TaskParameterEntity> taskParameterEntities = Arrays.stream(Language.values()).map(language -> {
             TaskParameterEntity taskParameterEntity = new TaskParameterEntity();
             taskParameterEntity.setTaskId(taskEntity.getId());

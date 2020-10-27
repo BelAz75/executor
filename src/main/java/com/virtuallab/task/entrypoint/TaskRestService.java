@@ -1,9 +1,7 @@
 package com.virtuallab.task.entrypoint;
 
 import com.virtuallab.task.dataprovider.TaskEntity;
-import com.virtuallab.task.usecase.CreateTask;
-import com.virtuallab.task.usecase.FindTasks;
-import com.virtuallab.task.usecase.UpdateTask;
+import com.virtuallab.task.usecase.*;
 import com.virtuallab.util.rest.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,12 +16,14 @@ public class TaskRestService {
     private final FindTasks findTasks;
     private final CreateTask createTask;
     private final UpdateTask updateTask;
+    private final GetTaskInfo getTaskInfo;
 
     @Autowired
-    public TaskRestService(FindTasks findTasks, CreateTask createTask, UpdateTask updateTask) {
+    public TaskRestService(FindTasks findTasks, CreateTask createTask, UpdateTask updateTask, GetTaskInfo getTaskInfo) {
         this.findTasks = findTasks;
         this.createTask = createTask;
         this.updateTask = updateTask;
+        this.getTaskInfo = getTaskInfo;
     }
 
     public PageResponse<TaskSearchResponse> findTasks(int page, int pageSize) {
@@ -48,6 +48,11 @@ public class TaskRestService {
     public TaskResponse updateTask(String taskId, UpdateTaskRequest updateTaskRequest) {
         TaskEntity taskEntity = updateTask.execute(taskId, updateTaskRequest);
         return ResponseConverter.toResponse(taskEntity);
+    }
+
+    public TaskInfoResponse getTaskInfo(String taskId) {
+        TaskInfo taskInfo = getTaskInfo.execute(taskId);
+        return ResponseConverter.toInfoResponse(taskInfo);
     }
 
 }

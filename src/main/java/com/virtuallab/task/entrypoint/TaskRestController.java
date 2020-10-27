@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/task")
 public class TaskRestController {
 
-    private TaskRestService taskRestService;
+    private final TaskRestService taskRestService;
 
     @Autowired
     public TaskRestController(TaskRestService taskRestService) {
@@ -34,6 +34,13 @@ public class TaskRestController {
         @RequestBody UpdateTaskRequest updateTaskRequest
     ) {
         return taskRestService.updateTask(taskId, updateTaskRequest);
+    }
+
+    @GetMapping("/{taskId}")
+    public TaskInfoResponse getTask(
+        @PathVariable("taskId") String taskId
+    ) {
+        return taskRestService.getTaskInfo(taskId);
     }
 
 }
