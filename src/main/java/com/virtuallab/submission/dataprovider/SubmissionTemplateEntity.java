@@ -6,7 +6,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "submission_template")
-public class SubmissionTemplate {
+public class SubmissionTemplateEntity {
 
     @Id
     @GeneratedValue(generator = "uuid")

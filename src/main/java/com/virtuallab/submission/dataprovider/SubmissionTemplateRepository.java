@@ -2,5 +2,8 @@ package com.virtuallab.submission.dataprovider;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface SubmissionTemplateRepository extends JpaRepository<SubmissionTemplate, String> {
+import java.util.Optional;
+
+public interface SubmissionTemplateRepository extends JpaRepository<SubmissionTemplateEntity, String> {
+    Optional<SubmissionTemplateEntity> findByTaskIdAndLanguage(String taskId, String language);
 }
