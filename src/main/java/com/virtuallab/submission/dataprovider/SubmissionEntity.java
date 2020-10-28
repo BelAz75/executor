@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "submission")
-public class Submission {
+public class SubmissionEntity {
 
     @Id
     @GeneratedValue(generator = "uuid")
