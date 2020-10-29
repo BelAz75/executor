@@ -1,6 +1,7 @@
 package com.virtuallab.task.entrypoint;
 
 import com.virtuallab.task.dataprovider.TaskEntity;
+import com.virtuallab.task.usecase.TaskAssignment;
 import com.virtuallab.task.usecase.TaskInfo;
 
 import java.util.List;
@@ -38,6 +39,18 @@ public class ResponseConverter {
         taskInfoResponse.setTaskTestCases(taskTestCases);
 
         return taskInfoResponse;
+    }
+
+    public static TaskAssignmentResponse toResponse(TaskAssignment taskAssignment) {
+        List<UserAssignmentResponse> userAssignmentsResponse = taskAssignment.getUsers().stream()
+            .map(userAssignment -> new UserAssignmentResponse(userAssignment.getId()))
+            .collect(Collectors.toList());
+
+        List<GroupAssignmentResponse> groupAssignmentsResponse = taskAssignment.getGroups().stream()
+            .map(groupAssignment -> new GroupAssignmentResponse(groupAssignment.getId()))
+            .collect(Collectors.toList());
+
+        return new TaskAssignmentResponse(taskAssignment.getDeadline(), userAssignmentsResponse, groupAssignmentsResponse);
     }
 
 }

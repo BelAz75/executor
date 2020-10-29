@@ -6,8 +6,10 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "type")
 @Table(name = "task_assignment")
-public class TaskAssignmentEntity {
+public abstract class TaskAssignmentEntity {
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -17,15 +19,6 @@ public class TaskAssignmentEntity {
 
     @Column(name = "task_uuid")
     private String taskId;
-
-    @Column(name = "type")
-    private String type;
-
-    @Column(name = "user_uuid")
-    private String userId;
-
-    @Column(name = "group_uuid")
-    private String groupId;
 
     @Column(name = "deadline")
     private LocalDateTime deadline;
@@ -44,22 +37,6 @@ public class TaskAssignmentEntity {
 
     public void setTaskId(String taskId) {
         this.taskId = taskId;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
     }
 
     public LocalDateTime getDeadline() {
