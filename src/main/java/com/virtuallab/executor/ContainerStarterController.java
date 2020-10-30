@@ -7,29 +7,29 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
-@RestController
-public class ContainerStarterController {
-    private final ContainerStarter starter;
-    public ContainerStarterController(ContainerStarter starter) {
-        this.starter = starter;
-    }
-
-    @GetMapping("/execute/{language}")
-    public String execute(@PathVariable("language") String languageName) throws IOException, InterruptedException {
-        Language language = Language.toEnum(languageName);
-        switch (language) {
-            case JAVA:
-                starter.executeJavaCode();
-                break;
-            case PYTHON:
-                starter.executePythonCode();
-                break;
-            case C:
-                starter.executeCCode();
-                break;
-            default:
-                throw new RuntimeException("Programming language " + language + " not supported");
-        }
-        return "Lool";
-    }
-}
+//@RestController
+//public class ContainerStarterController {
+//    private final ContainerStarter starter;
+//    public ContainerStarterController(ContainerStarter starter) {
+//        this.starter = starter;
+//    }
+//
+//    @GetMapping("/execute/{language}")
+//    public String execute(@PathVariable("language") String languageName) throws IOException, InterruptedException {
+//        Language language = Language.toEnum(languageName);
+//        switch (language) {
+//            case JAVA:
+//                starter.executeJavaCode();
+//                break;
+//            case PYTHON:
+//                starter.executePythonCode();
+//                break;
+//            case C:
+//                starter.executeCCode();
+//                break;
+//            default:
+//                throw new RuntimeException("Programming language " + language + " not supported");
+//        }
+//        return "Lool";
+//    }
+//}

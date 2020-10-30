@@ -1,6 +1,8 @@
 package com.virtuallab.executor;
 
 import com.virtuallab.common.Language;
+import com.virtuallab.submission.entrypoint.SubmissionResult;
+import com.virtuallab.submission.usecase.UpdateSubmission;
 import com.virtuallab.util.UUIDUtil;
 import org.springframework.stereotype.Service;
 
@@ -12,42 +14,51 @@ import java.nio.file.Paths;
 @Service
 public class ContainerStarter {
     private final DockerImageGenerator imageGenerator;
-    public ContainerStarter(DockerImageGenerator imageGenerator) {
+    private final UpdateSubmission updateSubmission;
+
+    public ContainerStarter(DockerImageGenerator imageGenerator, UpdateSubmission updateSubmission) {
+        this.updateSubmission = updateSubmission;
         this.imageGenerator = imageGenerator;
     }
 
-    public void executeJavaCode() throws IOException, InterruptedException {
+    public void executeJavaCode(String id, String code) throws IOException, InterruptedException {
         String executionFolderName = UUIDUtil.generateShortUUID();
+        SubmissionResult submissionResult = new SubmissionResult();
+        submissionResult.setStatus("Started");
+        updateSubmission.setResult(id, submissionResult);
         Path executionFolder = Paths.get("./images/" + Language.JAVA.name().toLowerCase() + "/" + executionFolderName);
         Files.createDirectories(executionFolder);
 
         System.out.println("---------JAVA---------");
         long start = System.currentTimeMillis();
-        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.JAVA, executionFolderName,
-                "public class Main {\n" +
-                "  public static void main(String[] args) {\n" +
-                "    System.out.println(\"Test Noner Run\");\n" +
-                "  }\n" +
-                "}");
+        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.JAVA, executionFolderName, code);
         System.out.println("============Start process===========");
-        executeProcess("docker run " + dockerImageName);
+        String executionOutput = executeProcess("docker run " + dockerImageName);
+        submissionResult.setStatus("Finished");
+        submissionResult.setError(executionOutput);
+        updateSubmission.setResult(id, submissionResult);
         long time = System.currentTimeMillis() - start;
         executeProcess("docker rmi -f " + dockerImageName);
         deleteDirectory(executionFolder);
         System.out.println("---------JAVA END----"+time + "ms-----");
     }
 
-    public void executePythonCode() throws IOException, InterruptedException {
+    public void executePythonCode(String id, String code) throws IOException, InterruptedException {
         String executionFolderName = UUIDUtil.generateShortUUID();
+        SubmissionResult submissionResult = new SubmissionResult();
+        submissionResult.setStatus("Started");
+        updateSubmission.setResult(id, submissionResult);
         Path executionFolder = Paths.get("./images/" + Language.PYTHON.name().toLowerCase() + "/" + executionFolderName);
         Files.createDirectories(executionFolder);
 
         System.out.println("----------PYTHON----------");
         long start = System.currentTimeMillis();
-        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.PYTHON, executionFolderName,
-                "print(\"This line will be printed.\")");
+        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.PYTHON, executionFolderName, code);
         System.out.println("============Start process===========");
-        executeProcess("docker run " + dockerImageName);
+        String executionOutput = executeProcess("docker run " + dockerImageName);
+        submissionResult.setStatus("Finished");
+        submissionResult.setError(executionOutput);
+        updateSubmission.setResult(id, submissionResult);
         long time = System.currentTimeMillis() - start;
         executeProcess("docker rmi -f " + dockerImageName);
 
@@ -55,22 +66,22 @@ public class ContainerStarter {
         System.out.println("----------PYTHON END---" + time + "ms------");
     }
 
-    public void executeCCode() throws IOException, InterruptedException {
+    public void executeCCode(String id, String code) throws IOException, InterruptedException {
         String executionFolderName = UUIDUtil.generateShortUUID();
+        SubmissionResult submissionResult = new SubmissionResult();
+        submissionResult.setStatus("Started");
+        updateSubmission.setResult(id, submissionResult);
         Path executionFolder = Paths.get("./images/" + Language.C.name().toLowerCase() + "/" + executionFolderName);
         Files.createDirectories(executionFolder);
 
         System.out.println("----------C----------");
         long start = System.currentTimeMillis();
-        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.C, executionFolderName,
-                "#include <stdio.h>\n" +
-                "int main()\n" +
-                "{\n" +
-                "  puts (\"Hello, World!\");\n" +
-                "  return 0;\n" +
-                "}");
+        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.C, executionFolderName, code);
         System.out.println("============Start process===========");
-        executeProcess("docker run " + dockerImageName);
+        String executionOutput = executeProcess("docker run " + dockerImageName);
+        submissionResult.setStatus("Finished");
+        submissionResult.setError(executionOutput);
+        updateSubmission.setResult(id, submissionResult);
         long time = System.currentTimeMillis() - start;
         executeProcess("docker rmi -f " + dockerImageName);
 
@@ -83,16 +94,15 @@ public class ContainerStarter {
         Files.delete(path);
     }
 
-    public static void executeProcess(String command) throws IOException, InterruptedException {
+    public static String executeProcess(String command) throws IOException, InterruptedException {
         Process process = Runtime.getRuntime().exec(command);
         int processEnd = process.waitFor();
 //        if (processEnd == 0) {
-            String content = readStreamContent(process.getInputStream());
-            System.out.println("Process output: " + content);
-//        } else {
-            content = readStreamContent(process.getErrorStream());
-            System.out.println("Error stream:\n" + content);
-//        }
+        String content = readStreamContent(process.getErrorStream());
+        System.out.println("Error stream:\n" + content);
+        content = readStreamContent(process.getInputStream());
+        System.out.println("Process output: " + content);
+        return content;
     }
 
     private static String readStreamContent(InputStream inputStream) throws IOException {
