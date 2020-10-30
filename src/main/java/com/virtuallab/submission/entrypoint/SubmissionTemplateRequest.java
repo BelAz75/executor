@@ -5,6 +5,15 @@ public class SubmissionTemplateRequest {
     private String language;
     private String templateCode;
 
+    public SubmissionTemplateRequest() {
+    }
+
+    public SubmissionTemplateRequest(String taskId, String language, String templateCode) {
+        this.taskId = taskId;
+        this.language = language;
+        this.templateCode = templateCode;
+    }
+
     public void setTaskId(String taskId) {
         this.taskId = taskId;
     }
