@@ -35,3 +35,8 @@ spring:
       maximum-pool-size: 50
       minimum-idle: 20
       pool-name: SpringBootHikariCP
+server:
+  servlet:
+    session:
+      cookie:
+        path=/:
