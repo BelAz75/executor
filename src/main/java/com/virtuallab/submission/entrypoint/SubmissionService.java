@@ -48,7 +48,7 @@ public class SubmissionService {
 
     public PageResponse<SubmissionResponse> findByTaskId(String taskId, int page, int pageSize) {
         String userId = SecurityUtils.getCurrentUserId();
-        final Page<SubmissionEntity> entities = findSubmission.byTaskId(taskId, userId, page, pageSize);
+        final Page<SubmissionEntity> entities = findSubmission.byTaskId(userId, taskId, page, pageSize);
 
         List<SubmissionResponse> searchResponse = entities.getContent().stream()
                 .map(ResponseConverter::toResponse)
