@@ -1,10 +1,14 @@
 package com.virtuallab.task.entrypoint;
 
+import com.virtuallab.common.Language;
+import com.virtuallab.events.GenerateSubmissionTemplateEvent;
+import com.virtuallab.events.TestRunnerEvent;
 import com.virtuallab.task.dataprovider.TaskEntity;
 import com.virtuallab.task.usecase.*;
 import com.virtuallab.util.rest.PageResponse;
 import com.virtuallab.util.security.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +23,16 @@ public class TaskRestService {
     private final UpdateTask updateTask;
     private final GetTaskInfo getTaskInfo;
     private final FindAssignedTasks findAssignedTasks;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public TaskRestService(FindTasks findTasks, CreateTask createTask, UpdateTask updateTask, GetTaskInfo getTaskInfo, FindAssignedTasks findAssignedTasks) {
+    public TaskRestService(FindTasks findTasks, CreateTask createTask, UpdateTask updateTask, GetTaskInfo getTaskInfo, FindAssignedTasks findAssignedTasks, ApplicationEventPublisher eventPublisher) {
         this.findTasks = findTasks;
         this.createTask = createTask;
         this.updateTask = updateTask;
         this.getTaskInfo = getTaskInfo;
         this.findAssignedTasks = findAssignedTasks;
+        this.eventPublisher = eventPublisher;
     }
 
     public PageResponse<TaskSearchResponse> findTasks(int page, int pageSize) {
@@ -52,6 +58,18 @@ public class TaskRestService {
 
     public TaskResponse updateTask(String taskId, UpdateTaskRequest updateTaskRequest) {
         TaskEntity taskEntity = updateTask.execute(taskId, updateTaskRequest);
+        // to regenerate test runner
+        eventPublisher.publishEvent(new TestRunnerEvent(taskEntity.getId(), Language.JAVA.name()));
+
+        // to regenerate code templates
+        final GenerateSubmissionTemplateEvent event = new GenerateSubmissionTemplateEvent(
+                taskEntity.getId(),
+                updateTaskRequest.getMethodName(),
+                updateTaskRequest.getInputParameters(),
+                updateTaskRequest.getOutputParameters(),
+                updateTaskRequest.getTestCases());
+        eventPublisher.publishEvent(event);
+
         return ResponseConverter.toResponse(taskEntity);
     }
 

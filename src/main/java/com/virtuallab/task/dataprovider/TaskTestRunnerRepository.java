@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface TaskTestRunnerRepository extends JpaRepository<TaskTestRunnerEntity, String> {
     List<TaskTestRunnerEntity> findByTaskId(String taskId);
+
+    long deleteByTaskId(String taskId);
 }

@@ -3,6 +3,7 @@ package com.virtuallab.executor;
 import com.virtuallab.events.GenerateSubmissionTemplateEvent;
 import com.virtuallab.submission.entrypoint.SubmissionTemplateRequest;
 import com.virtuallab.submission.entrypoint.SubmissionTemplateService;
+import com.virtuallab.submission.usecase.DeleteSubmissionTemplate;
 import com.virtuallab.task.entrypoint.InputParameterRequest;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -13,13 +14,17 @@ import java.util.List;
 public class GenerateSubmissionTemplateEventHandler {
 
     private final SubmissionTemplateService templateService;
+    private final DeleteSubmissionTemplate deleteSubmissionTemplate;
 
-    public GenerateSubmissionTemplateEventHandler(SubmissionTemplateService templateService) {
+    public GenerateSubmissionTemplateEventHandler(SubmissionTemplateService templateService, DeleteSubmissionTemplate deleteSubmissionTemplate) {
         this.templateService = templateService;
+        this.deleteSubmissionTemplate = deleteSubmissionTemplate;
     }
 
     @EventListener
     public void handle(GenerateSubmissionTemplateEvent event) {
+        // to be safe when task is updated
+        deleteSubmissionTemplate.execute(event.getTaskId());
         generateJavaTemplate(event);
     }
 

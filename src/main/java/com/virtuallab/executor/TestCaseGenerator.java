@@ -19,16 +19,20 @@ import java.util.Map;
 public class TestCaseGenerator {
     private final GetTaskInfo getTaskInfo;
     private final TaskTestRunnerRepository testRunnerRepository;
+    private final DeleteTestRunner deleteTestRunner;
 
-    public TestCaseGenerator(GetTaskInfo getTaskInfo, TaskTestRunnerRepository testRunnerRepository) {
+    public TestCaseGenerator(GetTaskInfo getTaskInfo, TaskTestRunnerRepository testRunnerRepository, DeleteTestRunner deleteTestRunner) {
         this.getTaskInfo = getTaskInfo;
         this.testRunnerRepository = testRunnerRepository;
+        this.deleteTestRunner = deleteTestRunner;
     }
 
     @EventListener
     public void handle(TestRunnerEvent event) {
         TaskInfo taskInfo = this.getTaskInfo.execute(event.getTaskId());
         if (taskInfo == null) return;
+        // to be safe when task is being updated
+        deleteTestRunner.delete(taskInfo.getId());
         StringBuilder testClassBuilder = new StringBuilder();
         TaskParameterInfo taskParameterInfo = taskInfo.getTaskParameters().get(0);
         switch (taskParameterInfo.getLanguage().toLowerCase()) {
