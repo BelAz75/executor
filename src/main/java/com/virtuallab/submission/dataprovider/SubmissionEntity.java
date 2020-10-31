@@ -30,7 +30,7 @@ public class SubmissionEntity {
     @Column(name = "status")
     private String status;
 
-    @Column(name = "error")
+    @Column(name = "error", columnDefinition = "text")
     private String error;
 
     @Column(name = "code")
