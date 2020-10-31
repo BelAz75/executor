@@ -99,12 +99,12 @@ public class ContainerStarter {
     public static String executeProcess(String command) throws IOException, InterruptedException {
         Process process = Runtime.getRuntime().exec(command);
         int processEnd = process.waitFor();
-//        if (processEnd == 0) {
-        String content = readStreamContent(process.getErrorStream());
-        System.out.println("Error stream:\n" + content);
-        content = readStreamContent(process.getInputStream());
-        System.out.println("Process output: " + content);
-        return content;
+        String errorContent = readStreamContent(process.getErrorStream());
+        System.out.println("Error stream:\n" + errorContent);
+        String okContent = readStreamContent(process.getInputStream());
+        System.out.println("Process output: " + okContent);
+        if (processEnd != 0) return errorContent;
+        return okContent;
     }
 
     private static void countPassedTests(String outputResult, SubmissionResult submissionResult) {
