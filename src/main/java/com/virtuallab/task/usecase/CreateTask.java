@@ -1,9 +1,7 @@
 package com.virtuallab.task.usecase;
 
 import com.virtuallab.common.Language;
-import com.virtuallab.events.RunSubmissionEvent;
 import com.virtuallab.events.TestRunnerEvent;
-import com.virtuallab.executor.TestCaseGenerator;
 import com.virtuallab.task.dataprovider.*;
 import com.virtuallab.task.entrypoint.CreateTaskRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,20 +14,27 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 @Component
 public class CreateTask {
 
     private final TaskRepository taskRepository;
     private final TaskParameterRepository taskParameterRepository;
     private final TaskTestCaseRepository taskTestCaseRepository;
+
+    // TODO remove
+    private final TaskAssignmentRepository taskAssignmentRepository;
+
     private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public CreateTask(TaskRepository taskRepository, TaskParameterRepository taskParameterRepository, TaskTestCaseRepository taskTestCaseRepository,
-                      ApplicationEventPublisher eventPublisher) {
+                      TaskAssignmentRepository taskAssignmentRepository, ApplicationEventPublisher eventPublisher) {
         this.taskRepository = taskRepository;
         this.taskParameterRepository = taskParameterRepository;
         this.taskTestCaseRepository = taskTestCaseRepository;
+        this.taskAssignmentRepository = taskAssignmentRepository;
         this.eventPublisher = eventPublisher;
     }
 
@@ -71,6 +76,13 @@ public class CreateTask {
             return taskTestCaseEntity;
         }).collect(Collectors.toList());
         taskTestCaseRepository.saveAll(taskTestCaseEntities);
+
+        // TODO fix me - assign task to user for demo
+        UserTaskAssignmentEntity userTaskAssignmentEntity = new UserTaskAssignmentEntity();
+        userTaskAssignmentEntity.setTaskId(taskEntity.getId());
+        userTaskAssignmentEntity.setDeadline(LocalDateTime.now().plus(10, DAYS));
+        userTaskAssignmentEntity.setUserId("664370bc-db14-47f3-ae37-0d61af534631");
+        taskAssignmentRepository.save(userTaskAssignmentEntity);
 
         return taskEntity;
     }
