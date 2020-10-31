@@ -21,6 +21,7 @@ public class CorsAwareAuthenticationFilter extends OncePerRequestFilter {
     private final Set<String> allowedOrigins = new HashSet<String>() {
         {
             add("http://localhost:4200");
+            add("http://virtlab.eastus.cloudapp.azure.com");
         }
     };
 
