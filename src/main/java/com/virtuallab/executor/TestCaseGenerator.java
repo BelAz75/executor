@@ -39,7 +39,6 @@ public class TestCaseGenerator {
                 appendJavaCode(testClassBuilder, taskInfo);
         }
 
-
         TaskTestRunnerEntity testRunnerEntity = new TaskTestRunnerEntity();
         testRunnerEntity.setTaskId(event.getTaskId());
         testRunnerEntity.setLanguage(event.getLanguage());

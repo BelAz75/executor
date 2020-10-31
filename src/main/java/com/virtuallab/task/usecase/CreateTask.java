@@ -1,6 +1,7 @@
 package com.virtuallab.task.usecase;
 
 import com.virtuallab.common.Language;
+import com.virtuallab.events.GenerateSubmissionTemplateEvent;
 import com.virtuallab.events.TestRunnerEvent;
 import com.virtuallab.task.dataprovider.*;
 import com.virtuallab.task.entrypoint.CreateTaskRequest;
@@ -40,7 +41,17 @@ public class CreateTask {
 
     public TaskEntity execute(String userId, CreateTaskRequest request) {
         TaskEntity taskEntity = saveEntities(userId, request);
+
         eventPublisher.publishEvent(new TestRunnerEvent(taskEntity.getId(), Language.JAVA.name()));
+
+        final GenerateSubmissionTemplateEvent event = new GenerateSubmissionTemplateEvent(
+            taskEntity.getId(),
+            request.getMethodName(),
+            request.getInputParameters(),
+            request.getOutputParameters(),
+            request.getTestCases());
+        eventPublisher.publishEvent(event);
+
         return taskEntity;
     }
 
