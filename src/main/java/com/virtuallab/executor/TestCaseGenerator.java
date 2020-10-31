@@ -7,50 +7,39 @@ import com.virtuallab.task.usecase.GetTaskInfo;
 import com.virtuallab.task.usecase.TaskInfo;
 import com.virtuallab.task.usecase.TaskParameterInfo;
 import com.virtuallab.task.usecase.TaskTestCaseInfo;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class TestCaseGenerator {
-    private final GetTaskInfo taskInfo;
+    private final GetTaskInfo getTaskInfo;
     private final TaskTestRunnerRepository testRunnerRepository;
 
-    public TestCaseGenerator(GetTaskInfo taskInfo, TaskTestRunnerRepository testRunnerRepository) {
-        this.taskInfo = taskInfo;
+    public TestCaseGenerator(GetTaskInfo getTaskInfo, TaskTestRunnerRepository testRunnerRepository) {
+        this.getTaskInfo = getTaskInfo;
         this.testRunnerRepository = testRunnerRepository;
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(TestRunnerEvent event) {
-        TaskInfo taskInfo = this.taskInfo.execute(event.getTaskId());
+        TaskInfo taskInfo = this.getTaskInfo.execute(event.getTaskId());
         if (taskInfo == null) return;
         StringBuilder testClassBuilder = new StringBuilder();
-        testClassBuilder.append("public class TestCase {\n");
         TaskParameterInfo taskParameterInfo = taskInfo.getTaskParameters().get(0);
-        List<TaskTestCaseInfo> testCases = taskInfo.getTaskTestCases();
-        for (int i = 0; i < testCases.size(); i++) {
-            TaskTestCaseInfo testCase = testCases.get(i);
-            testClassBuilder.append("public void testCase" + (i+1) + "(){\n");
-            testClassBuilder.append("Submission submission = new Submission();\n");
-            if (taskParameterInfo.getOutputParameters().equals("String") ) {
-                testClassBuilder.append("String result = submission." + taskParameterInfo.getMethodName() + "(");
-                testClassBuilder.append(testCase.getInput());
-                testClassBuilder.append(");\n");
-                testClassBuilder.append("if (!result.equals(" + testCase.getOutput() +")) System.out.println(\"Failed TestCase"+ (i + 1) +"\");");
-                testClassBuilder.append("else System.out.println(\"Passed TestCase"+ (i + 1) +"\");");
-            }
-            testClassBuilder.append("}\n");
+        switch (taskParameterInfo.getLanguage().toLowerCase()) {
+            case "python":
+                appendJavaCode(testClassBuilder, taskInfo);
+                break;
+            default:
+                appendJavaCode(testClassBuilder, taskInfo);
         }
-        testClassBuilder.append("public static void main(String[] args) {\n");
-        testClassBuilder.append("TestCase testCase = new TestCase();\n");
-        for (int i = 0; i < testCases.size(); i++) {
-            testClassBuilder.append("testCase.testCase" + (i+1) + "();\n");
-        }
-        testClassBuilder.append("}\n");
-        testClassBuilder.append("}");
+
 
         TaskTestRunnerEntity testRunnerEntity = new TaskTestRunnerEntity();
         testRunnerEntity.setTaskId(event.getTaskId());
@@ -59,4 +48,70 @@ public class TestCaseGenerator {
         testRunnerRepository.save(testRunnerEntity);
     }
 
+    private void appendJavaCode(StringBuilder testClassBuilder, TaskInfo taskInfo) {
+        testClassBuilder.append("public class TestCase {\n");
+        List<TaskTestCaseInfo> testCases = taskInfo.getTaskTestCases();
+        for (int i = 0; i < testCases.size(); i++) {
+            TaskTestCaseInfo testCase = testCases.get(i);
+            testClassBuilder.append("public void testCase" + (i + 1) + "(){\n");
+            testClassBuilder.append("Submission submission = new Submission();\n");
+            TaskParameterInfo taskParameterInfo = taskInfo.getTaskParameters().get(0);
+            if (taskParameterInfo.getOutputParameters().equalsIgnoreCase("String")) {
+                testClassBuilder.append("String result = submission." + taskParameterInfo.getMethodName() + "(");
+                testClassBuilder.append(testCase.getInput());
+                testClassBuilder.append(");\n");
+                testClassBuilder.append("if (!result.equals(" + testCase.getOutput() + ")) System.out.println(\"Failed TestCase" + (i + 1) + "\");");
+                testClassBuilder.append("else System.out.println(\"Passed TestCase" + (i + 1) + "\");");
+            }
+            testClassBuilder.append("}\n");
+        }
+        testClassBuilder.append("public static void main(String[] args) {\n");
+        testClassBuilder.append("TestCase testCase = new TestCase();\n");
+        for (int i = 0; i < testCases.size(); i++) {
+            testClassBuilder.append("testCase.testCase" + (i + 1) + "();\n");
+        }
+        testClassBuilder.append("}\n");
+        testClassBuilder.append("}");
+    }
+
+    private void appendPythonCode(StringBuilder testClassBuilder, TaskInfo taskInfo) {
+        testClassBuilder.append(pythonClassDeclaration);
+        List<TaskTestCaseInfo> testCases = taskInfo.getTaskTestCases();
+        for (int i = 0; i < testCases.size(); i++) {
+            TaskTestCaseInfo testCase = testCases.get(i);
+            Map<String, String> substitutionsMap = new HashMap();
+            substitutionsMap.put("case_number", String.valueOf(i));
+            substitutionsMap.put("case_number_plus_one", String.valueOf(i + 1));
+            substitutionsMap.put("submission_method_name", taskInfo.getTaskParameters().get(0).getMethodName());
+            substitutionsMap.put("input_arguments", testCases.get(i).getInput());
+            String correctResult = testCases.get(i).getOutput();
+            if (taskInfo.getTaskParameters().get(0).getOutputParameters().equalsIgnoreCase("String")) {
+                correctResult = "'" + correctResult + "'";
+            }
+            substitutionsMap.put("correct_result", correctResult);
+            testClassBuilder.append(StrSubstitutor.replace(pythonTestCase, substitutionsMap));
+            testClassBuilder.append("}\n");
+        }
+        testClassBuilder.append(pythonRunTestCases);
+        for (int i = 0; i < testCases.size(); i++) {
+            testClassBuilder.append("    testCase.testCase_" + (i + 1) + "()\n");
+        }
+        testClassBuilder.append("\n");
+    }
+
+    private final String pythonClassDeclaration = "" +
+            "class TestCase:\n" +
+            "\n" +
+            "    def __init__(self, submission):\n" +
+            "        self.submission = submission\n\n";
+
+    private final String pythonTestCase = "" +
+            "    def test_case_%(case_number)(self)):\n" +
+            "        result = self.submission.%(submission_method_name)(%(input_arguments))\n" +
+            "        if result == %(correct_result):\n" +
+            "            print('Passed case %(case_number_plus_one)')\n\n";
+
+    private final String pythonRunTestCases = "" +
+            "if __name__ == \"__main__\":\n" +
+            "    testCase = TestCase()\n";
 }
