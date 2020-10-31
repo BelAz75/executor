@@ -34,7 +34,7 @@ public class TestCaseGenerator {
         TaskParameterInfo taskParameterInfo = taskInfo.getTaskParameters().get(0);
         switch (taskParameterInfo.getLanguage().toLowerCase()) {
             case "python":
-                appendJavaCode(testClassBuilder, taskInfo);
+                appendPythonCode(testClassBuilder, taskInfo);
                 break;
             default:
                 appendJavaCode(testClassBuilder, taskInfo);
@@ -56,14 +56,17 @@ public class TestCaseGenerator {
             testClassBuilder.append("public void testCase" + (i + 1) + "(){\n");
             testClassBuilder.append("Submission submission = new Submission();\n");
             TaskParameterInfo taskParameterInfo = taskInfo.getTaskParameters().get(0);
-            if (taskParameterInfo.getOutputParameters().equalsIgnoreCase("String")) {
-                testClassBuilder.append("String result = submission." + taskParameterInfo.getMethodName() + "(");
-                testClassBuilder.append(testCase.getInput());
-                testClassBuilder.append(");\n");
-                testClassBuilder.append("if (!result.equals(" + testCase.getOutput() + ")) System.out.println(\"Failed TestCase" + (i + 1) + "\");");
-                testClassBuilder.append("else System.out.println(\"Passed TestCase" + (i + 1) + "\");");
+            String outputType = taskParameterInfo.getOutputParameters();
+            testClassBuilder.append("String result = submission." + taskParameterInfo.getMethodName() + "(");
+            testClassBuilder.append(testCase.getInput());
+            testClassBuilder.append(");\n");
+            if (outputType.equalsIgnoreCase("String")) {
+                testClassBuilder.append("if (!result.equals(\"" + testCase.getOutput() + "\")) System.out.println(\"Failed test case " + (i + 1) + "\");\n");
+            } else if (outputType.equalsIgnoreCase("Integer")) {
+                testClassBuilder.append("if (!result.equals(" + testCase.getOutput() + ")) System.out.println(\"Failed test case " + (i + 1) + "\");\n");
             }
-            testClassBuilder.append("}\n");
+            testClassBuilder.append("else System.out.println(\"Passed test case " + (i + 1) + "\");");
+            testClassBuilder.append("\n}\n");
         }
         testClassBuilder.append("public static void main(String[] args) {\n");
         testClassBuilder.append("TestCase testCase = new TestCase();\n");
@@ -80,8 +83,7 @@ public class TestCaseGenerator {
         for (int i = 0; i < testCases.size(); i++) {
             TaskTestCaseInfo testCase = testCases.get(i);
             Map<String, String> substitutionsMap = new HashMap();
-            substitutionsMap.put("case_number", String.valueOf(i));
-            substitutionsMap.put("case_number_plus_one", String.valueOf(i + 1));
+            substitutionsMap.put("case_number", String.valueOf(i + 1));
             substitutionsMap.put("submission_method_name", taskInfo.getTaskParameters().get(0).getMethodName());
             substitutionsMap.put("input_arguments", testCases.get(i).getInput());
             String correctResult = testCases.get(i).getOutput();
@@ -90,7 +92,6 @@ public class TestCaseGenerator {
             }
             substitutionsMap.put("correct_result", correctResult);
             testClassBuilder.append(StrSubstitutor.replace(pythonTestCase, substitutionsMap));
-            testClassBuilder.append("}\n");
         }
         testClassBuilder.append(pythonRunTestCases);
         for (int i = 0; i < testCases.size(); i++) {
@@ -100,16 +101,18 @@ public class TestCaseGenerator {
     }
 
     private final String pythonClassDeclaration = "" +
+            "from submission import Submission\n\n" +
             "class TestCase:\n" +
-            "\n" +
-            "    def __init__(self, submission):\n" +
-            "        self.submission = submission\n\n";
+            "\n";
 
     private final String pythonTestCase = "" +
-            "    def test_case_%(case_number)(self)):\n" +
-            "        result = self.submission.%(submission_method_name)(%(input_arguments))\n" +
-            "        if result == %(correct_result):\n" +
-            "            print('Passed case %(case_number_plus_one)')\n\n";
+            "    def test_case_${case_number}(self):\n" +
+            "        submission = Submission()\n" +
+            "        result = submission.${submission_method_name}(${input_arguments})\n" +
+            "        if result == ${correct_result}:\n" +
+            "            print('Passed test case ${case_number}')\n" +
+            "        else:\n" +
+            "            print('Failed test case ${case_number}')\n\n";
 
     private final String pythonRunTestCases = "" +
             "if __name__ == \"__main__\":\n" +
