@@ -26,7 +26,8 @@ public class DockerImageGenerator {
         switch (language) {
             case JAVA:
                 createJavaExecScript(language, execFolder);
-                TaskTestRunnerEntity testRunner = testRunnerRepository.findByTaskId(taskId);
+                System.out.println(taskId);
+                TaskTestRunnerEntity testRunner = testRunnerRepository.findByTaskId(taskId).get(0);
                 Path testCaseFile = createJavaTestCaseFile(language, execFolder, testRunner.getTaskTestCode());
                 Path submissionFile = createJavaSubmissionFile(language, execFolder, fileContent);
                 dockerImageName = generateJavaDockerImage(submissionFile, testCaseFile, execFolder, language);

@@ -3,6 +3,7 @@ package com.virtuallab.task.usecase;
 import com.virtuallab.common.Language;
 import com.virtuallab.events.RunSubmissionEvent;
 import com.virtuallab.events.TestRunnerEvent;
+import com.virtuallab.executor.TestCaseGenerator;
 import com.virtuallab.task.dataprovider.*;
 import com.virtuallab.task.entrypoint.CreateTaskRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,22 +22,29 @@ public class CreateTask {
     private final TaskRepository taskRepository;
     private final TaskParameterRepository taskParameterRepository;
     private final TaskTestCaseRepository taskTestCaseRepository;
+    private final TestCaseGenerator testCaseGenerator;
     private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public CreateTask(TaskRepository taskRepository, TaskParameterRepository taskParameterRepository, TaskTestCaseRepository taskTestCaseRepository,
-                      ApplicationEventPublisher eventPublisher) {
+                      TestCaseGenerator testCaseGenerator, ApplicationEventPublisher eventPublisher) {
         this.taskRepository = taskRepository;
         this.taskParameterRepository = taskParameterRepository;
         this.taskTestCaseRepository = taskTestCaseRepository;
         this.eventPublisher = eventPublisher;
+        this.testCaseGenerator = testCaseGenerator;
+    }
+
+
+    public TaskEntity execute(String userId, CreateTaskRequest request) {
+        TaskEntity taskEntity = saveEntities(userId, request);
+        testCaseGenerator.handle(new TestRunnerEvent(taskEntity.getId(), Language.JAVA.name()));
+//        eventPublisher.publishEvent();
+        return taskEntity;
     }
 
     @Transactional
-    public TaskEntity execute(String userId, CreateTaskRequest request) {
-        // validation
-        // check constraints
-
+    public TaskEntity saveEntities(String userId, CreateTaskRequest request) {
         TaskEntity taskEntity = new TaskEntity();
         taskEntity.setTitle(request.getTitle());
         taskEntity.setDescription(request.getDescription());
@@ -67,8 +75,6 @@ public class CreateTask {
             return taskTestCaseEntity;
         }).collect(Collectors.toList());
         taskTestCaseRepository.saveAll(taskTestCaseEntities);
-
-        eventPublisher.publishEvent(new TestRunnerEvent(taskEntity.getId(), Language.JAVA.name()));
         return taskEntity;
     }
 

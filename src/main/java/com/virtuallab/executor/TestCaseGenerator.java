@@ -26,7 +26,7 @@ public class TestCaseGenerator {
 
     @EventListener
     public void handle(TestRunnerEvent event) {
-        TaskInfo taskInfo = this.taskInfo.execute("");
+        TaskInfo taskInfo = this.taskInfo.execute(event.getTaskId());
         if (taskInfo == null) return;
         StringBuilder testClassBuilder = new StringBuilder();
         testClassBuilder.append("public class TestCase {\n");
@@ -40,10 +40,17 @@ public class TestCaseGenerator {
                 testClassBuilder.append("String result = submission." + taskParameterInfo.getMethodName() + "(");
                 testClassBuilder.append(testCase.getInput());
                 testClassBuilder.append(");\n");
-                testClassBuilder.append("if (!result.equals(\"" + testCase.getOutput() +"\")) System.out.println(\"Failed test TestCase"+ (i + 1) +"\");");
+                testClassBuilder.append("if (!result.equals(" + testCase.getOutput() +")) System.out.println(\"Failed TestCase"+ (i + 1) +"\");");
+                testClassBuilder.append("else System.out.println(\"Passed TestCase"+ (i + 1) +"\");");
             }
             testClassBuilder.append("}\n");
         }
+        testClassBuilder.append("public static void main(String[] args) {\n");
+        testClassBuilder.append("TestCase testCase = new TestCase();\n");
+        for (int i = 0; i < testCases.size(); i++) {
+            testClassBuilder.append("testCase.testCase" + (i+1) + "();\n");
+        }
+        testClassBuilder.append("}\n");
         testClassBuilder.append("}");
 
         TaskTestRunnerEntity testRunnerEntity = new TaskTestRunnerEntity();
