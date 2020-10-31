@@ -2,8 +2,9 @@ package com.virtuallab.submission.entrypoint;
 
 public class SubmissionResult {
     private String status;
-    private String error;
+    private String message;
     private int testsPassed;
+    private int testsFailed;
 
     public String getStatus() {
         return status;
@@ -13,12 +14,12 @@ public class SubmissionResult {
         this.status = status;
     }
 
-    public String getError() {
-        return error;
+    public String getMessage() {
+        return message;
     }
 
-    public void setError(String error) {
-        this.error = error;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public int getTestsPassed() {
@@ -27,5 +28,13 @@ public class SubmissionResult {
 
     public void setTestsPassed(int testsPassed) {
         this.testsPassed = testsPassed;
+    }
+
+    public int getTestsFailed() {
+        return testsFailed;
+    }
+
+    public void setTestsFailed(int testsFailed) {
+        this.testsFailed = testsFailed;
     }
 }

@@ -30,14 +30,17 @@ public class SubmissionEntity {
     @Column(name = "status")
     private String status;
 
-    @Column(name = "error", columnDefinition = "text")
-    private String error;
+    @Column(name = "message", columnDefinition = "text")
+    private String message;
 
     @Column(name = "code")
     private String code;
 
     @Column(name = "tests_passed")
     private int testsPassed;
+
+    @Column(name = "tests_failed")
+    private int testsFailed;
 
     public String getId() {
         return id;
@@ -87,12 +90,12 @@ public class SubmissionEntity {
         this.status = status;
     }
 
-    public String getError() {
-        return error;
+    public String getMessage() {
+        return message;
     }
 
-    public void setError(String error) {
-        this.error = error;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public String getCode() {
@@ -109,5 +112,13 @@ public class SubmissionEntity {
 
     public void setTestsPassed(int testsPassed) {
         this.testsPassed = testsPassed;
+    }
+
+    public int getTestsFailed() {
+        return testsFailed;
+    }
+
+    public void setTestsFailed(int testsFailed) {
+        this.testsFailed = testsFailed;
     }
 }

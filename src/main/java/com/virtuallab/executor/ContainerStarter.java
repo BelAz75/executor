@@ -35,7 +35,7 @@ public class ContainerStarter {
         System.out.println("============Start process===========");
         String executionOutput = executeProcess("docker run " + dockerImageName);
         submissionResult.setStatus("Finished");
-        submissionResult.setError(executionOutput);
+        submissionResult.setMessage(executionOutput);
         countPassedTests(executionOutput, submissionResult);
         updateSubmission.setResult(id, submissionResult);
         long time = System.currentTimeMillis() - start;
@@ -58,7 +58,7 @@ public class ContainerStarter {
         System.out.println("============Start process===========");
         String executionOutput = executeProcess("docker run " + dockerImageName);
         submissionResult.setStatus("Finished");
-        submissionResult.setError(executionOutput);
+        submissionResult.setMessage(executionOutput);
         countPassedTests(executionOutput, submissionResult);
         updateSubmission.setResult(id, submissionResult);
         long time = System.currentTimeMillis() - start;
@@ -82,7 +82,7 @@ public class ContainerStarter {
         System.out.println("============Start process===========");
         String executionOutput = executeProcess("docker run " + dockerImageName);
         submissionResult.setStatus("Finished");
-        submissionResult.setError(executionOutput);
+        submissionResult.setMessage(executionOutput);
         updateSubmission.setResult(id, submissionResult);
         long time = System.currentTimeMillis() - start;
         executeProcess("docker rmi -f " + dockerImageName);
@@ -103,17 +103,23 @@ public class ContainerStarter {
         System.out.println("Error stream:\n" + errorContent);
         String okContent = readStreamContent(process.getInputStream());
         System.out.println("Process output: " + okContent);
-        if (processEnd != 0) return errorContent;
+        if (!errorContent.isEmpty()) return errorContent;
         return okContent;
     }
 
     private static void countPassedTests(String outputResult, SubmissionResult submissionResult) {
         String[] split = outputResult.split("\n");
         int passedTests = 0;
+        int failedTests = 0;
         for (int i = 0; i < split.length; i++) {
-            if (split[i].contains("Passed")) passedTests++;
+            if (split[i].contains("Passed")) {
+                passedTests++;
+            } else {
+                failedTests++;
+            }
         }
         submissionResult.setTestsPassed(passedTests);
+        submissionResult.setTestsFailed(failedTests);
     }
 
     private static String readStreamContent(InputStream inputStream) throws IOException {

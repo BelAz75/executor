@@ -8,16 +8,19 @@ public class SubmissionResponse {
     private LocalDateTime submittedAt;
     private String language;
     private String status;
-    private String error;
+    private String message;
     private int testsPassed;
+    private int testsFailed;
 
-    public SubmissionResponse(String id, LocalDateTime submittedAt, String language, String status, String error, int testsPassed) {
+    public SubmissionResponse(String id, LocalDateTime submittedAt, String language, String status, String message, int testsPassed,
+                              int testsFailed) {
         this.id = id;
         this.submittedAt = submittedAt;
         this.language = language;
         this.status = status;
-        this.error = error;
+        this.message = message;
         this.testsPassed = testsPassed;
+        this.testsFailed = testsFailed;
     }
 
     public String getId() {
@@ -36,11 +39,15 @@ public class SubmissionResponse {
         return status;
     }
 
-    public String getError() {
-        return error;
+    public String getMessage() {
+        return message;
     }
 
     public int getTestsPassed() {
         return testsPassed;
+    }
+
+    public int getTestsFailed() {
+        return testsFailed;
     }
 }

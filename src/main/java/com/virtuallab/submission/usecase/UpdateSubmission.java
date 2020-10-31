@@ -23,8 +23,9 @@ public class UpdateSubmission {
                 .orElseThrow(() -> new RuntimeException("Submission not found"));
 
         entity.setStatus(result.getStatus());
-        entity.setError(result.getError());
+        entity.setMessage(result.getMessage());
         entity.setTestsPassed(result.getTestsPassed());
+        entity.setTestsFailed(result.getTestsFailed());
 
         return submissionRepository.save(entity);
     }
