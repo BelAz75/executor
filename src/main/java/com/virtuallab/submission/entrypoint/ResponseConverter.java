@@ -10,7 +10,7 @@ public class ResponseConverter {
     }
 
     public static SubmissionResponse toResponse(SubmissionEntity submissionEntity) {
-        return new SubmissionResponse(submissionEntity.getId(), submissionEntity.getSubmittedAt(), submissionEntity.getLanguage(), submissionEntity.getStatus(), submissionEntity.getMessage(), submissionEntity.getTestsPassed(), submissionEntity.getTestsFailed());
+        return new SubmissionResponse(submissionEntity.getId(), submissionEntity.getSubmittedAt(), submissionEntity.getLanguage(), submissionEntity.getStatus(), submissionEntity.getMessage(), submissionEntity.getTestsPassed(), submissionEntity.getTestsFailed(), submissionEntity.getCode());
     }
 
 }

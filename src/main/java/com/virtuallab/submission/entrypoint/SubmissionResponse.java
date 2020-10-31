@@ -11,9 +11,10 @@ public class SubmissionResponse {
     private String message;
     private int testsPassed;
     private int testsFailed;
+    private String code;
 
     public SubmissionResponse(String id, LocalDateTime submittedAt, String language, String status, String message, int testsPassed,
-                              int testsFailed) {
+                              int testsFailed, String code) {
         this.id = id;
         this.submittedAt = submittedAt;
         this.language = language;
@@ -21,6 +22,11 @@ public class SubmissionResponse {
         this.message = message;
         this.testsPassed = testsPassed;
         this.testsFailed = testsFailed;
+        this.code = code;
+    }
+
+    public String getCode() {
+        return code;
     }
 
     public String getId() {
