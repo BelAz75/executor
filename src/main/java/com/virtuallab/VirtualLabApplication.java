@@ -45,7 +45,7 @@ public class VirtualLabApplication {
 		List<TestCaseRequest> testCases = new ArrayList<>();
 		TestCaseRequest firstTestCase = new TestCaseRequest();
 		firstTestCase.setInputData("\"foo\",\"bar\"");
-		firstTestCase.setExpectedData("\"foobar\"");
+		firstTestCase.setExpectedData("foobar");
 		testCases.add(firstTestCase);
 		createTaskRequest.setTestCases(testCases);
 		TaskEntity taskEntity = createTask.execute("664370bc-db14-47f3-ae37-0d61af534631", createTaskRequest);
