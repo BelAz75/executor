@@ -28,12 +28,14 @@ public class DockerImageGenerator {
                 createJavaExecScript(language, execFolder);
                 System.out.println(taskId);
                 TaskTestRunnerEntity testRunner = testRunnerRepository.findByTaskId(taskId).get(0);
-                Path testCaseFile = createJavaTestCaseFile(language, execFolder, testRunner.getTaskTestCode());
-                Path submissionFile = createJavaSubmissionFile(language, execFolder, fileContent);
-                dockerImageName = generateJavaDockerImage(submissionFile, testCaseFile, execFolder, language);
+                Path testCaseJavaFile = createJavaTestCaseFile(language, execFolder, testRunner.getTaskTestCode());
+                Path submissionJavaFile = createJavaSubmissionFile(language, execFolder, fileContent);
+                dockerImageName = generateJavaDockerImage(submissionJavaFile, testCaseJavaFile, execFolder, language);
                 break;
             case PYTHON:
-                dockerImageName = generatePythonDockerImage(createFile(language, execFolder, fileContent), execFolder, language);
+                Path submissionPythonFile = createFile(language, execFolder, fileContent);
+                Path testCasePythonFile = createPythonTestCaseFile(language, execFolder, fileContent);
+                dockerImageName = generatePythonDockerImage(submissionPythonFile, testCasePythonFile, execFolder, language);
                 break;
             case C:
                 dockerImageName = generateCDockerImage(createFile(language, execFolder, fileContent), execFolder, language);
@@ -47,6 +49,12 @@ public class DockerImageGenerator {
         return dockerImageName;
     }
 
+    private Path createPythonTestCaseFile(Language language, String execFolder, String fileContent) throws IOException {
+        String fileName = "submission" + language.getExtension();
+        Path filePath = Paths.get("./images/" + language.name().toLowerCase() + "/" + execFolder + "/" + fileName);
+        Files.write(filePath, fileContent.getBytes());
+        return filePath;
+    }
 
     private Path createJavaSubmissionFile(Language language, String execFolder, String fileContent) throws IOException {
         String fileName = "Submission" + language.getExtension();
@@ -95,15 +103,16 @@ public class DockerImageGenerator {
         return dockerImageName;
     }
 
-    private String generatePythonDockerImage(Path filePath, String execFolder, Language language) throws IOException, InterruptedException {
+    private String generatePythonDockerImage(Path submissionFile, Path testCaseFile, String execFolder, Language language) throws IOException, InterruptedException {
         Path dockerfilePath = Paths.get("./images/" + language.name().toLowerCase() + "/" + execFolder +  "/Dockerfile");
-        String filenameWithoutExtension = filePath.getFileName().toString().replaceFirst("[.][^.]+$", "");
+        String filenameWithoutExtension = testCaseFile.getFileName().toString().replaceFirst("[.][^.]+$", "");
         String dockerfile = "FROM python:3\n" +
                 "WORKDIR /usr/src/app\n" +
                 "RUN touch __init__.py\n" +
-                "COPY " + filePath.getFileName() + " ./" + filePath.getFileName() + "\n" +
+                "COPY " + submissionFile.getFileName() + " ./" + submissionFile.getFileName() + "\n" +
+                "COPY " + testCaseFile.getFileName() + " ./" + testCaseFile.getFileName() + "\n" +
                 "RUN cd ..\n" +
-                "CMD [\"python\", \"-m\" ,\"test_cases." + filenameWithoutExtension + "\"]";
+                "CMD [\"python\", \"-m\" ,\"app." + filenameWithoutExtension + "\"]";
         Files.write(dockerfilePath, dockerfile.getBytes());
         String dockerImageName = language.name().toLowerCase() + "_" + UUIDUtil.generateShortUUID();
         executeProcess("docker build -t " + dockerImageName + " " + dockerfilePath.getParent().toAbsolutePath().toString());
