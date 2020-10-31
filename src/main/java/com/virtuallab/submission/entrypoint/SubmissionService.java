@@ -6,6 +6,7 @@ import com.virtuallab.submission.usecase.CreateSubmission;
 import com.virtuallab.submission.usecase.FindSubmission;
 import com.virtuallab.submission.usecase.UpdateSubmission;
 import com.virtuallab.util.rest.PageResponse;
+import com.virtuallab.util.security.SecurityUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -31,8 +32,9 @@ public class SubmissionService {
     }
 
     public SubmissionResponse create(SubmissionRequest request) {
-        final SubmissionEntity submission = createSubmission.create(request);
-        eventPublisher.publishEvent(new RunSubmissionEvent(submission.getId(), request.getTaskId(), request.getLanguage(), request.getCode()));
+        String userId = SecurityUtils.getCurrentUserId();
+        final SubmissionEntity submission = createSubmission.create(userId, request);
+        eventPublisher.publishEvent(new RunSubmissionEvent(submission.getId(), request.getTaskId(),request.getLanguage(), request.getCode()));
         return toResponse(submission);
     }
 
@@ -45,8 +47,8 @@ public class SubmissionService {
     }
 
     public PageResponse<SubmissionResponse> findByTaskId(String taskId, int page, int pageSize) {
-
-        final Page<SubmissionEntity> entities = findSubmission.byTaskId(taskId, page, pageSize);
+        String userId = SecurityUtils.getCurrentUserId();
+        final Page<SubmissionEntity> entities = findSubmission.byTaskId(taskId, userId, page, pageSize);
 
         List<SubmissionResponse> searchResponse = entities.getContent().stream()
                 .map(ResponseConverter::toResponse)

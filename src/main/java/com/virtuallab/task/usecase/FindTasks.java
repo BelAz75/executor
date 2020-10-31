@@ -17,8 +17,8 @@ public class FindTasks {
         this.taskRepository = taskRepository;
     }
 
-    public Page<TaskEntity> execute(int page, int pageSize) {
-        return taskRepository.findAll(PageRequest.of(page - 1, pageSize));
+    public Page<TaskEntity> execute(String userId, int page, int pageSize) {
+        return taskRepository.findAllByCreatedBy(userId, PageRequest.of(page - 1, pageSize));
     }
 
 }

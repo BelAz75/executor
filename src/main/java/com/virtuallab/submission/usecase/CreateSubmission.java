@@ -18,11 +18,11 @@ public class CreateSubmission {
         this.submissionRepository = submissionRepository;
     }
 
-    public SubmissionEntity create(SubmissionRequest submissionRequest) {
+    public SubmissionEntity create(String userId, SubmissionRequest submissionRequest) {
         final SubmissionEntity entity = new SubmissionEntity();
         entity.setCode(submissionRequest.getCode());
         entity.setTaskId(submissionRequest.getTaskId());
-        entity.setUserId(submissionRequest.getUserId());
+        entity.setUserId(userId);
         entity.setLanguage(submissionRequest.getLanguage());
         entity.setSubmittedAt(LocalDateTime.now());
         entity.setStatus("Submitted");

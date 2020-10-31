@@ -4,6 +4,7 @@ import com.virtuallab.events.GenerateSubmissionTemplateEvent;
 import com.virtuallab.task.dataprovider.TaskEntity;
 import com.virtuallab.task.usecase.*;
 import com.virtuallab.util.rest.PageResponse;
+import com.virtuallab.util.security.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -31,7 +32,8 @@ public class TaskRestService {
     }
 
     public PageResponse<TaskSearchResponse> findTasks(int page, int pageSize) {
-        Page<TaskEntity> taskSearchResult = findTasks.execute(page, pageSize);
+        String userId = SecurityUtils.getCurrentUserId();
+        Page<TaskEntity> taskSearchResult = findTasks.execute(userId, page, pageSize);
         List<TaskSearchResponse> searchResponse = taskSearchResult.getContent().stream()
             .map(ResponseConverter::toSearchResponse)
             .collect(Collectors.toList());
@@ -45,7 +47,8 @@ public class TaskRestService {
     }
 
     public TaskResponse createTask(CreateTaskRequest createTaskRequest) {
-        TaskEntity task = createTask.execute(createTaskRequest);
+        String userId = SecurityUtils.getCurrentUserId();
+        TaskEntity task = createTask.execute(userId, createTaskRequest);
         final GenerateSubmissionTemplateEvent event = new GenerateSubmissionTemplateEvent(
                 task.getId(),
                 createTaskRequest.getMethodName(),

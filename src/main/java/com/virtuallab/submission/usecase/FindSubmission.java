@@ -23,7 +23,8 @@ public class FindSubmission {
                 .orElseThrow(() -> new RuntimeException("SubmissionTemplate not found"));
     }
 
-    public Page<SubmissionEntity> byTaskId(String taskId, int page, int pageSize) {
-        return submissionRepository.findByTaskIdOrderBySubmittedAtDesc(taskId, PageRequest.of(page - 1, pageSize));
+    public Page<SubmissionEntity> byTaskId(String userId, String taskId, int page, int pageSize) {
+        return submissionRepository.findByTaskIdAndUserIdOrderBySubmittedAtDesc(taskId, userId, PageRequest.of(page - 1, pageSize));
     }
+
 }

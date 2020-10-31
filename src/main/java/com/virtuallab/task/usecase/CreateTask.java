@@ -33,7 +33,7 @@ public class CreateTask {
     }
 
     @Transactional
-    public TaskEntity execute(CreateTaskRequest request) {
+    public TaskEntity execute(String userId, CreateTaskRequest request) {
         // validation
         // check constraints
 
@@ -41,8 +41,7 @@ public class CreateTask {
         taskEntity.setTitle(request.getTitle());
         taskEntity.setDescription(request.getDescription());
         taskEntity.setCreatedAt(LocalDateTime.now());
-        // TODO get from context
-        taskEntity.setCreatedBy("user-1");
+        taskEntity.setCreatedBy(userId);
         taskRepository.save(taskEntity);
 
         // TODO save raw parameters, because they are independent of the language and mapping will be done inside application
