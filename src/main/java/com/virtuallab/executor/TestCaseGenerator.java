@@ -1,5 +1,6 @@
 package com.virtuallab.executor;
 
+import com.virtuallab.common.Language;
 import com.virtuallab.events.TestRunnerEvent;
 import com.virtuallab.task.dataprovider.TaskTestRunnerEntity;
 import com.virtuallab.task.dataprovider.TaskTestRunnerRepository;
@@ -33,21 +34,21 @@ public class TestCaseGenerator {
         if (taskInfo == null) return;
         // to be safe when task is being updated
         deleteTestRunner.delete(taskInfo.getId());
-        StringBuilder testClassBuilder = new StringBuilder();
-        TaskParameterInfo taskParameterInfo = taskInfo.getTaskParameters().get(0);
-        switch (taskParameterInfo.getLanguage().toLowerCase()) {
-            case "python":
-                appendPythonCode(testClassBuilder, taskInfo);
-                break;
-            default:
-                appendJavaCode(testClassBuilder, taskInfo);
-        }
+        TaskTestRunnerEntity javaTestRunnerEntity = new TaskTestRunnerEntity();
+        javaTestRunnerEntity.setTaskId(event.getTaskId());
+        javaTestRunnerEntity.setLanguage(Language.JAVA.name());
+        StringBuilder javaClassBuilder = new StringBuilder();
+        appendJavaCode(javaClassBuilder, taskInfo);
+        javaTestRunnerEntity.setTaskTestCode(javaClassBuilder.toString());
+        testRunnerRepository.save(javaTestRunnerEntity);
 
-        TaskTestRunnerEntity testRunnerEntity = new TaskTestRunnerEntity();
-        testRunnerEntity.setTaskId(event.getTaskId());
-        testRunnerEntity.setLanguage(event.getLanguage());
-        testRunnerEntity.setTaskTestCode(testClassBuilder.toString());
-        testRunnerRepository.save(testRunnerEntity);
+        TaskTestRunnerEntity pythonTestRunnerEntity = new TaskTestRunnerEntity();
+        pythonTestRunnerEntity.setTaskId(event.getTaskId());
+        pythonTestRunnerEntity.setLanguage(Language.PYTHON.name());
+        StringBuilder pythonClassBuilder = new StringBuilder();
+        appendPythonCode(pythonClassBuilder, taskInfo);
+        pythonTestRunnerEntity.setTaskTestCode(pythonClassBuilder.toString());
+        testRunnerRepository.save(pythonTestRunnerEntity);
     }
 
     private void appendJavaCode(StringBuilder testClassBuilder, TaskInfo taskInfo) {

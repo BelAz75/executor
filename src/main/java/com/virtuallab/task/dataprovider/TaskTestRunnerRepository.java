@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface TaskTestRunnerRepository extends JpaRepository<TaskTestRunnerEntity, String> {
-    List<TaskTestRunnerEntity> findByTaskId(String taskId);
+    List<TaskTestRunnerEntity> findByTaskIdAndLanguage(String taskId, String language);
 
     long deleteByTaskId(String taskId);
 }
