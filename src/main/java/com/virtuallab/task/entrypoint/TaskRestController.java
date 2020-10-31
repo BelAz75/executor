@@ -4,6 +4,8 @@ import com.virtuallab.util.rest.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/task")
 public class TaskRestController {
@@ -41,6 +43,14 @@ public class TaskRestController {
         @PathVariable("taskId") String taskId
     ) {
         return taskRestService.getTaskInfo(taskId);
+    }
+
+    @GetMapping("/assigned")
+    public PageResponse<TaskSearchResponse> findAssignedTasks(
+        @RequestParam(value = "pageNumber", defaultValue = "1") int page,
+        @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        return taskRestService.findAssignedTasks(page, pageSize);
     }
 
 }

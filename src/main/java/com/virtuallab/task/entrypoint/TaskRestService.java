@@ -20,14 +20,16 @@ public class TaskRestService {
     private final CreateTask createTask;
     private final UpdateTask updateTask;
     private final GetTaskInfo getTaskInfo;
+    private final FindAssignedTasks findAssignedTasks;
     private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public TaskRestService(FindTasks findTasks, CreateTask createTask, UpdateTask updateTask, GetTaskInfo getTaskInfo, ApplicationEventPublisher eventPublisher) {
+    public TaskRestService(FindTasks findTasks, CreateTask createTask, UpdateTask updateTask, GetTaskInfo getTaskInfo, FindAssignedTasks findAssignedTasks, ApplicationEventPublisher eventPublisher) {
         this.findTasks = findTasks;
         this.createTask = createTask;
         this.updateTask = updateTask;
         this.getTaskInfo = getTaskInfo;
+        this.findAssignedTasks = findAssignedTasks;
         this.eventPublisher = eventPublisher;
     }
 
@@ -68,6 +70,21 @@ public class TaskRestService {
     public TaskInfoResponse getTaskInfo(String taskId) {
         TaskInfo taskInfo = getTaskInfo.execute(taskId);
         return ResponseConverter.toInfoResponse(taskInfo);
+    }
+
+    public PageResponse<TaskSearchResponse> findAssignedTasks(int page, int pageSize) {
+        String userId = SecurityUtils.getCurrentUserId();
+        Page<TaskEntity> taskSearchResult = findAssignedTasks.execute(userId, page, pageSize);
+        List<TaskSearchResponse> searchResponse = taskSearchResult.getContent().stream()
+            .map(ResponseConverter::toSearchResponse)
+            .collect(Collectors.toList());
+        return new PageResponse<>(
+            page,
+            pageSize,
+            taskSearchResult.getTotalPages(),
+            taskSearchResult.getTotalElements(),
+            searchResponse
+        );
     }
 
 }
