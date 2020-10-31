@@ -2,11 +2,9 @@ package com.virtuallab.executor;
 
 import com.virtuallab.common.Language;
 import com.virtuallab.events.RunSubmissionEvent;
-import com.virtuallab.submission.dataprovider.SubmissionRepository;
-import com.virtuallab.submission.entrypoint.SubmissionResult;
-import com.virtuallab.submission.usecase.UpdateSubmission;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.io.IOException;
 
@@ -18,7 +16,7 @@ public class RunSubmissionEventHandler {
         this.starter = starter;
     }
 
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(RunSubmissionEvent event) throws IOException, InterruptedException {
         Language language = Language.toEnum(event.getLanguage());
         switch (language) {
@@ -35,4 +33,5 @@ public class RunSubmissionEventHandler {
                 throw new RuntimeException("Programming language " + language + " not supported");
         }
     }
+
 }

@@ -1,6 +1,5 @@
 package com.virtuallab.executor;
 
-import com.virtuallab.events.RunSubmissionEvent;
 import com.virtuallab.events.TestRunnerEvent;
 import com.virtuallab.task.dataprovider.TaskTestRunnerEntity;
 import com.virtuallab.task.dataprovider.TaskTestRunnerRepository;
@@ -8,10 +7,10 @@ import com.virtuallab.task.usecase.GetTaskInfo;
 import com.virtuallab.task.usecase.TaskInfo;
 import com.virtuallab.task.usecase.TaskParameterInfo;
 import com.virtuallab.task.usecase.TaskTestCaseInfo;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.io.IOException;
 import java.util.List;
 
 @Component
@@ -24,7 +23,7 @@ public class TestCaseGenerator {
         this.testRunnerRepository = testRunnerRepository;
     }
 
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(TestRunnerEvent event) {
         TaskInfo taskInfo = this.taskInfo.execute(event.getTaskId());
         if (taskInfo == null) return;
@@ -59,4 +58,5 @@ public class TestCaseGenerator {
         testRunnerEntity.setTaskTestCode(testClassBuilder.toString());
         testRunnerRepository.save(testRunnerEntity);
     }
+
 }

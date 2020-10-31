@@ -22,28 +22,24 @@ public class CreateTask {
     private final TaskRepository taskRepository;
     private final TaskParameterRepository taskParameterRepository;
     private final TaskTestCaseRepository taskTestCaseRepository;
-    private final TestCaseGenerator testCaseGenerator;
     private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public CreateTask(TaskRepository taskRepository, TaskParameterRepository taskParameterRepository, TaskTestCaseRepository taskTestCaseRepository,
-                      TestCaseGenerator testCaseGenerator, ApplicationEventPublisher eventPublisher) {
+                      ApplicationEventPublisher eventPublisher) {
         this.taskRepository = taskRepository;
         this.taskParameterRepository = taskParameterRepository;
         this.taskTestCaseRepository = taskTestCaseRepository;
         this.eventPublisher = eventPublisher;
-        this.testCaseGenerator = testCaseGenerator;
-    }
-
-
-    public TaskEntity execute(String userId, CreateTaskRequest request) {
-        TaskEntity taskEntity = saveEntities(userId, request);
-        testCaseGenerator.handle(new TestRunnerEvent(taskEntity.getId(), Language.JAVA.name()));
-//        eventPublisher.publishEvent();
-        return taskEntity;
     }
 
     @Transactional
+    public TaskEntity execute(String userId, CreateTaskRequest request) {
+        TaskEntity taskEntity = saveEntities(userId, request);
+        eventPublisher.publishEvent(new TestRunnerEvent(taskEntity.getId(), Language.JAVA.name()));
+        return taskEntity;
+    }
+
     public TaskEntity saveEntities(String userId, CreateTaskRequest request) {
         TaskEntity taskEntity = new TaskEntity();
         taskEntity.setTitle(request.getTitle());
@@ -75,6 +71,7 @@ public class CreateTask {
             return taskTestCaseEntity;
         }).collect(Collectors.toList());
         taskTestCaseRepository.saveAll(taskTestCaseEntities);
+
         return taskEntity;
     }
 

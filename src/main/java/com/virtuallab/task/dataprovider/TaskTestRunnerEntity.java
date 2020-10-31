@@ -20,7 +20,7 @@ public class TaskTestRunnerEntity {
     @Column(name = "language")
     private String language;
 
-    @Column(name = "task_test_code", length = 1024)
+    @Column(name = "task_test_code", columnDefinition = "text")
     private String taskTestCode;
 
     public String getId() {
