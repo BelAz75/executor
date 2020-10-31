@@ -41,6 +41,6 @@ public class GenerateSubmissionTemplateEventHandler {
         template.append("){\n\n}\n");
         template.append("}");
 
-        templateService.create(new SubmissionTemplateRequest(event.getTaskId(), "Java", template.toString()));
+        templateService.create(new SubmissionTemplateRequest(event.getTaskId(), "java", template.toString()));
     }
 }
