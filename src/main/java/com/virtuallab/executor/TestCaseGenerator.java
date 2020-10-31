@@ -101,13 +101,13 @@ public class TestCaseGenerator {
         }
         testClassBuilder.append(pythonRunTestCases);
         for (int i = 0; i < testCases.size(); i++) {
-            testClassBuilder.append("    testCase.testCase_" + (i + 1) + "()\n");
+            testClassBuilder.append("    testCase.test_case_" + (i + 1) + "()\n");
         }
         testClassBuilder.append("\n");
     }
 
     private final String pythonClassDeclaration = "" +
-            "from submission import Submission\n\n" +
+            "from app.submission import Submission\n\n\n" +
             "class TestCase:\n" +
             "\n";
 
@@ -120,7 +120,7 @@ public class TestCaseGenerator {
             "        else:\n" +
             "            print('Failed test case ${case_number}')\n\n";
 
-    private final String pythonRunTestCases = "" +
+    private final String pythonRunTestCases = "\n" +
             "if __name__ == \"__main__\":\n" +
             "    testCase = TestCase()\n";
 }

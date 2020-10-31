@@ -97,10 +97,13 @@ public class DockerImageGenerator {
 
     private String generatePythonDockerImage(Path filePath, String execFolder, Language language) throws IOException, InterruptedException {
         Path dockerfilePath = Paths.get("./images/" + language.name().toLowerCase() + "/" + execFolder +  "/Dockerfile");
+        String filenameWithoutExtension = filePath.getFileName().toString().replaceFirst("[.][^.]+$", "");
         String dockerfile = "FROM python:3\n" +
                 "WORKDIR /usr/src/app\n" +
+                "RUN touch __init__.py\n" +
                 "COPY " + filePath.getFileName() + " ./" + filePath.getFileName() + "\n" +
-                "CMD [\"python\", \"./" + filePath.getFileName() + "\"]";
+                "RUN cd ..\n" +
+                "CMD [\"python\", \"-m\" ,\"test_cases." + filenameWithoutExtension + "\"]";
         Files.write(dockerfilePath, dockerfile.getBytes());
         String dockerImageName = language.name().toLowerCase() + "_" + UUIDUtil.generateShortUUID();
         executeProcess("docker build -t " + dockerImageName + " " + dockerfilePath.getParent().toAbsolutePath().toString());
