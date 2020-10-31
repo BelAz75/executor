@@ -32,7 +32,7 @@ public class SubmissionService {
 
     public SubmissionResponse create(SubmissionRequest request) {
         final SubmissionEntity submission = createSubmission.create(request);
-        eventPublisher.publishEvent(new RunSubmissionEvent(submission.getId(), request.getLanguage(), request.getCode()));
+        eventPublisher.publishEvent(new RunSubmissionEvent(submission.getId(), request.getTaskId(), request.getLanguage(), request.getCode()));
         return toResponse(submission);
     }
 

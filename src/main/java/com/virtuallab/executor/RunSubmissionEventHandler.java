@@ -23,13 +23,13 @@ public class RunSubmissionEventHandler {
         Language language = Language.toEnum(event.getLanguage());
         switch (language) {
             case JAVA:
-                starter.executeJavaCode(event.getId(), event.getCode());
+                starter.executeJavaCode(event.getId(), event.getTaskId(), event.getCode());
                 break;
             case PYTHON:
-                starter.executePythonCode(event.getId(), event.getCode());
+                starter.executePythonCode(event.getId(), event.getTaskId(), event.getCode());
                 break;
             case C:
-                starter.executeCCode(event.getId(), event.getCode());
+                starter.executeCCode(event.getId(), event.getTaskId(), event.getCode());
                 break;
             default:
                 throw new RuntimeException("Programming language " + language + " not supported");

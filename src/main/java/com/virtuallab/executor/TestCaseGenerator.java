@@ -1,23 +1,31 @@
 package com.virtuallab.executor;
 
+import com.virtuallab.events.RunSubmissionEvent;
+import com.virtuallab.events.TestRunnerEvent;
+import com.virtuallab.task.dataprovider.TaskTestRunnerEntity;
+import com.virtuallab.task.dataprovider.TaskTestRunnerRepository;
 import com.virtuallab.task.usecase.GetTaskInfo;
 import com.virtuallab.task.usecase.TaskInfo;
 import com.virtuallab.task.usecase.TaskParameterInfo;
 import com.virtuallab.task.usecase.TaskTestCaseInfo;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.List;
 
 @Component
 public class TestCaseGenerator {
-
     private final GetTaskInfo taskInfo;
+    private final TaskTestRunnerRepository testRunnerRepository;
 
-    public TestCaseGenerator(GetTaskInfo taskInfo) {
+    public TestCaseGenerator(GetTaskInfo taskInfo, TaskTestRunnerRepository testRunnerRepository) {
         this.taskInfo = taskInfo;
+        this.testRunnerRepository = testRunnerRepository;
     }
 
-    public void generateJavaTestClass() {
+    @EventListener
+    public void handle(TestRunnerEvent event) {
         TaskInfo taskInfo = this.taskInfo.execute("");
         if (taskInfo == null) return;
         StringBuilder testClassBuilder = new StringBuilder();
@@ -37,5 +45,11 @@ public class TestCaseGenerator {
             testClassBuilder.append("}\n");
         }
         testClassBuilder.append("}");
+
+        TaskTestRunnerEntity testRunnerEntity = new TaskTestRunnerEntity();
+        testRunnerEntity.setTaskId(event.getTaskId());
+        testRunnerEntity.setLanguage(event.getLanguage());
+        testRunnerEntity.setTaskTestCode(testClassBuilder.toString());
+        testRunnerRepository.save(testRunnerEntity);
     }
 }

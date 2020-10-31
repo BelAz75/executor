@@ -21,7 +21,7 @@ public class ContainerStarter {
         this.imageGenerator = imageGenerator;
     }
 
-    public void executeJavaCode(String id, String code) throws IOException, InterruptedException {
+    public void executeJavaCode(String id, String taskId, String code) throws IOException, InterruptedException {
         String executionFolderName = UUIDUtil.generateShortUUID();
         SubmissionResult submissionResult = new SubmissionResult();
         submissionResult.setStatus("Started");
@@ -31,7 +31,7 @@ public class ContainerStarter {
 
         System.out.println("---------JAVA---------");
         long start = System.currentTimeMillis();
-        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.JAVA, executionFolderName, code);
+        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.JAVA, executionFolderName, taskId, code);
         System.out.println("============Start process===========");
         String executionOutput = executeProcess("docker run " + dockerImageName);
         submissionResult.setStatus("Finished");
@@ -43,7 +43,7 @@ public class ContainerStarter {
         System.out.println("---------JAVA END----"+time + "ms-----");
     }
 
-    public void executePythonCode(String id, String code) throws IOException, InterruptedException {
+    public void executePythonCode(String id, String taskId, String code) throws IOException, InterruptedException {
         String executionFolderName = UUIDUtil.generateShortUUID();
         SubmissionResult submissionResult = new SubmissionResult();
         submissionResult.setStatus("Started");
@@ -53,7 +53,7 @@ public class ContainerStarter {
 
         System.out.println("----------PYTHON----------");
         long start = System.currentTimeMillis();
-        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.PYTHON, executionFolderName, code);
+        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.PYTHON, executionFolderName, taskId, code);
         System.out.println("============Start process===========");
         String executionOutput = executeProcess("docker run " + dockerImageName);
         submissionResult.setStatus("Finished");
@@ -66,7 +66,7 @@ public class ContainerStarter {
         System.out.println("----------PYTHON END---" + time + "ms------");
     }
 
-    public void executeCCode(String id, String code) throws IOException, InterruptedException {
+    public void executeCCode(String id, String taskId, String code) throws IOException, InterruptedException {
         String executionFolderName = UUIDUtil.generateShortUUID();
         SubmissionResult submissionResult = new SubmissionResult();
         submissionResult.setStatus("Started");
@@ -76,7 +76,7 @@ public class ContainerStarter {
 
         System.out.println("----------C----------");
         long start = System.currentTimeMillis();
-        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.C, executionFolderName, code);
+        String dockerImageName = imageGenerator.generateDockerImageForLanguage(Language.C, executionFolderName, taskId, code);
         System.out.println("============Start process===========");
         String executionOutput = executeProcess("docker run " + dockerImageName);
         submissionResult.setStatus("Finished");

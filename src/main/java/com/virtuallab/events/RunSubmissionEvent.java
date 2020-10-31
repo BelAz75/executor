@@ -2,13 +2,15 @@ package com.virtuallab.events;
 
 public class RunSubmissionEvent {
     private String id;
+    private String taskId;
     private String language;
     private String code;
 
-    public RunSubmissionEvent(String id, String language, String code) {
+    public RunSubmissionEvent(String id, String taskId, String language, String code) {
         this.id = id;
-        this.language = language;
         this.code = code;
+        this.taskId = taskId;
+        this.language = language;
     }
 
     public String getId() {
@@ -21,5 +23,9 @@ public class RunSubmissionEvent {
 
     public String getCode() {
         return code;
+    }
+
+    public String getTaskId() {
+        return taskId;
     }
 }

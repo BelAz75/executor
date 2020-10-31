@@ -1,9 +1,12 @@
 package com.virtuallab.task.usecase;
 
 import com.virtuallab.common.Language;
+import com.virtuallab.events.RunSubmissionEvent;
+import com.virtuallab.events.TestRunnerEvent;
 import com.virtuallab.task.dataprovider.*;
 import com.virtuallab.task.entrypoint.CreateTaskRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,12 +21,15 @@ public class CreateTask {
     private final TaskRepository taskRepository;
     private final TaskParameterRepository taskParameterRepository;
     private final TaskTestCaseRepository taskTestCaseRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public CreateTask(TaskRepository taskRepository, TaskParameterRepository taskParameterRepository, TaskTestCaseRepository taskTestCaseRepository) {
+    public CreateTask(TaskRepository taskRepository, TaskParameterRepository taskParameterRepository, TaskTestCaseRepository taskTestCaseRepository,
+                      ApplicationEventPublisher eventPublisher) {
         this.taskRepository = taskRepository;
         this.taskParameterRepository = taskParameterRepository;
         this.taskTestCaseRepository = taskTestCaseRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -63,6 +69,7 @@ public class CreateTask {
         }).collect(Collectors.toList());
         taskTestCaseRepository.saveAll(taskTestCaseEntities);
 
+        eventPublisher.publishEvent(new TestRunnerEvent(taskEntity.getId(), Language.JAVA.name()));
         return taskEntity;
     }
 
