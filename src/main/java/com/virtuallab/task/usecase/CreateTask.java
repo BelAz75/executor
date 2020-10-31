@@ -38,13 +38,13 @@ public class CreateTask {
         this.eventPublisher = eventPublisher;
     }
 
-    @Transactional
     public TaskEntity execute(String userId, CreateTaskRequest request) {
         TaskEntity taskEntity = saveEntities(userId, request);
         eventPublisher.publishEvent(new TestRunnerEvent(taskEntity.getId(), Language.JAVA.name()));
         return taskEntity;
     }
 
+    @Transactional
     public TaskEntity saveEntities(String userId, CreateTaskRequest request) {
         TaskEntity taskEntity = new TaskEntity();
         taskEntity.setTitle(request.getTitle());
