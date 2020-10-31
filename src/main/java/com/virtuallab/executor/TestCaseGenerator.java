@@ -8,9 +8,8 @@ import com.virtuallab.task.usecase.TaskInfo;
 import com.virtuallab.task.usecase.TaskParameterInfo;
 import com.virtuallab.task.usecase.TaskTestCaseInfo;
 import org.apache.commons.lang3.text.StrSubstitutor;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +25,7 @@ public class TestCaseGenerator {
         this.testRunnerRepository = testRunnerRepository;
     }
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @EventListener
     public void handle(TestRunnerEvent event) {
         TaskInfo taskInfo = this.getTaskInfo.execute(event.getTaskId());
         if (taskInfo == null) return;

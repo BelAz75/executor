@@ -36,6 +36,7 @@ public class ContainerStarter {
         String executionOutput = executeProcess("docker run " + dockerImageName);
         submissionResult.setStatus("Finished");
         submissionResult.setError(executionOutput);
+        countPassedTests(executionOutput, submissionResult);
         updateSubmission.setResult(id, submissionResult);
         long time = System.currentTimeMillis() - start;
         executeProcess("docker rmi -f " + dockerImageName);
@@ -58,6 +59,7 @@ public class ContainerStarter {
         String executionOutput = executeProcess("docker run " + dockerImageName);
         submissionResult.setStatus("Finished");
         submissionResult.setError(executionOutput);
+        countPassedTests(executionOutput, submissionResult);
         updateSubmission.setResult(id, submissionResult);
         long time = System.currentTimeMillis() - start;
         executeProcess("docker rmi -f " + dockerImageName);
@@ -103,6 +105,15 @@ public class ContainerStarter {
         content = readStreamContent(process.getInputStream());
         System.out.println("Process output: " + content);
         return content;
+    }
+
+    private static void countPassedTests(String outputResult, SubmissionResult submissionResult) {
+        String[] split = outputResult.split("\n");
+        int passedTests = 0;
+        for (int i = 0; i < split.length; i++) {
+            if (split[i].contains("Passed")) passedTests++;
+        }
+        submissionResult.setTestsPassed(passedTests);
     }
 
     private static String readStreamContent(InputStream inputStream) throws IOException {
