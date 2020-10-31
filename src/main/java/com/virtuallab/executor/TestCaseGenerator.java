@@ -55,16 +55,20 @@ public class TestCaseGenerator {
             testClassBuilder.append("Submission submission = new Submission();\n");
             TaskParameterInfo taskParameterInfo = taskInfo.getTaskParameters().get(0);
             String outputType = taskParameterInfo.getOutputParameters();
-            testClassBuilder.append("String result = submission." + taskParameterInfo.getMethodName() + "(");
+            if (outputType.equalsIgnoreCase("String")) {
+                testClassBuilder.append("String result = submission." + taskParameterInfo.getMethodName() + "(");
+            } else if (outputType.equalsIgnoreCase("Integer")) {
+                testClassBuilder.append("int result = submission." + taskParameterInfo.getMethodName() + "(");
+            }
             testClassBuilder.append(testCase.getInput());
             testClassBuilder.append(");\n");
             if (outputType.equalsIgnoreCase("String")) {
                 testClassBuilder.append("if (!result.equals(\"" + testCase.getOutput() + "\")) System.out.println(\"Failed test case " + (i + 1) + "\");\n");
             } else if (outputType.equalsIgnoreCase("Integer")) {
-                testClassBuilder.append("if (!result.equals(" + testCase.getOutput() + ")) System.out.println(\"Failed test case " + (i + 1) + "\");\n");
+                testClassBuilder.append("if (result != " + testCase.getOutput() + ")) System.out.println(\"Failed test case " + (i + 1) + "\");\n");
             }
-            testClassBuilder.append("else System.out.println(\"Passed test case " + (i + 1) + "\");");
-            testClassBuilder.append("\n}\n");
+            testClassBuilder.append("else System.out.println(\"Passed test case " + (i + 1) + "\");\n");
+            testClassBuilder.append("}\n");
         }
         testClassBuilder.append("public static void main(String[] args) {\n");
         testClassBuilder.append("TestCase testCase = new TestCase();\n");
