@@ -20,8 +20,8 @@ public interface TaskRepository extends JpaRepository<TaskEntity, String> {
     Page<TaskEntity> findAssignedTasksForUser(@Param("userId") String userId, Pageable pageable);
 
     @Query(
-        value = "select t.* from task t inner join task_assignment ta on t.uuid = ta.task_uuid where ta.user_uuid = :userId or ta.group_uuid in (:groupIds)",
-        countQuery = "select count(1) from task t inner join task_assignment ta on t.uuid = ta.task_uuid where ta.user_uuid = :userId or ta.group_uuid in (:groupIds)",
+        value = "select distinct t.* from task t inner join task_assignment ta on t.uuid = ta.task_uuid where ta.user_uuid = :userId or ta.group_uuid in (:groupIds)",
+        countQuery = "select count(distinct t.uuid) from task t inner join task_assignment ta on t.uuid = ta.task_uuid where ta.user_uuid = :userId or ta.group_uuid in (:groupIds)",
         nativeQuery = true
     )
     Page<TaskEntity> findAssignedTasksForUserAndGroups(@Param("userId") String userId, @Param("groupIds") Set<String> groupIds, Pageable pageable);
