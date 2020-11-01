@@ -13,6 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 public class NoRedirectAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -34,7 +35,9 @@ public class NoRedirectAuthenticationSuccessHandler extends SimpleUrlAuthenticat
             userEntity.getUsername(),
             userEntity.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList())
         );
-        response.getWriter().write(objectMapper.writeValueAsString(authResponse));
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json; charset=UTF-8");
+        response.getOutputStream().write(objectMapper.writeValueAsString(authResponse).getBytes(StandardCharsets.UTF_8));
         response.setStatus(HttpStatus.OK.value());
     }
 
