@@ -70,7 +70,7 @@ public class TestCaseGenerator {
             if (outputType.equalsIgnoreCase("String")) {
                 testClassBuilder.append("if (!result.equals(\"" + testCase.getOutput() + "\")) System.out.println(\"Failed test case " + (i + 1) + "\");\n");
             } else if (outputType.equalsIgnoreCase("Integer")) {
-                testClassBuilder.append("if (result != " + testCase.getOutput() + ")) System.out.println(\"Failed test case " + (i + 1) + "\");\n");
+                testClassBuilder.append("if (result != " + testCase.getOutput() + ") System.out.println(\"Failed test case " + (i + 1) + "\");\n");
             }
             testClassBuilder.append("else System.out.println(\"Passed test case " + (i + 1) + "\");\n");
             testClassBuilder.append("}\n");

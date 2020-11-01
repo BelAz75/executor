@@ -88,13 +88,6 @@ public class CreateTask {
         }).collect(Collectors.toList());
         taskTestCaseRepository.saveAll(taskTestCaseEntities);
 
-        // TODO fix me - assign task to user for demo
-        UserTaskAssignmentEntity userTaskAssignmentEntity = new UserTaskAssignmentEntity();
-        userTaskAssignmentEntity.setTaskId(taskEntity.getId());
-        userTaskAssignmentEntity.setDeadline(LocalDateTime.now().plus(10, DAYS));
-        userTaskAssignmentEntity.setUserId("664370bc-db14-47f3-ae37-0d61af534631");
-        taskAssignmentRepository.save(userTaskAssignmentEntity);
-
         return taskEntity;
     }
 
